@@ -2,6 +2,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { modules } from "@/lib/modules";
 import { ModulePage } from "@/components/ModulePage";
 import { Button } from "@/components/ui/button";
+import { SuperAdminCommand } from "@/components/specialty/SuperAdminCommand";
+import { FranchisesDashboard } from "@/components/specialty/FranchisesDashboard";
+
+const specialty: Record<string, () => JSX.Element> = {
+  "/super-admin": SuperAdminCommand,
+  "/franchises": FranchisesDashboard,
+};
 
 export const Route = createFileRoute("/$")({
   component: SplatRoute,
@@ -10,6 +17,8 @@ export const Route = createFileRoute("/$")({
 function SplatRoute() {
   const params = Route.useParams() as { _splat?: string };
   const path = "/" + (params._splat ?? "");
+  const Specialty = specialty[path];
+  if (Specialty) return <Specialty />;
   const module = modules.find((m) => m.url === path || path.startsWith(m.url + "/"));
 
   if (module) {
