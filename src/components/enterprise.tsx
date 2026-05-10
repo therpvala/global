@@ -178,7 +178,7 @@ export function FilterBar({
 }
 
 /* --------------------------- Records ---------------------------- */
-export interface Record {
+export interface RecordRow {
   id: string;
   name: string;
   status: "active" | "pending" | "archived" | "draft" | "review";
@@ -188,7 +188,7 @@ export interface Record {
   tag?: string;
 }
 
-const statusStyles: Record<string, string> = {
+const statusStyles: globalThis.Record<string, string> = {
   active: "bg-success/15 text-success border-success/30",
   pending: "bg-warning/15 text-warning border-warning/30",
   archived: "bg-muted text-muted-foreground border-border",
@@ -196,7 +196,7 @@ const statusStyles: Record<string, string> = {
   review: "bg-primary/15 text-primary border-primary/30",
 };
 
-export function RecordsTable({ rows }: { rows: Record[] }) {
+export function RecordsTable({ rows }: { rows: RecordRow[] }) {
   return (
     <div className="rounded-xl border border-border/60 bg-card overflow-hidden">
       <Table>
@@ -271,7 +271,7 @@ export interface ActivityItem {
   kind?: "create" | "update" | "approve" | "reject" | "comment";
 }
 
-const activityKind: Record<string, { dot: string; icon: any }> = {
+const activityKind: globalThis.Record<string, { dot: string; icon: any }> = {
   create: { dot: "bg-primary", icon: ArrowUpRight },
   update: { dot: "bg-warning", icon: Clock },
   approve: { dot: "bg-success", icon: CheckCircle2 },
