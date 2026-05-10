@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { SuperAdminCommand } from "@/components/specialty/SuperAdminCommand";
 import { FranchisesDashboard } from "@/components/specialty/FranchisesDashboard";
 
-const specialty: Record<string, () => JSX.Element> = {
+const specialty: Record<string, React.ComponentType> = {
   "/super-admin": SuperAdminCommand,
   "/franchises": FranchisesDashboard,
 };
