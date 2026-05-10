@@ -39,6 +39,13 @@ import {
   DocumentsConsole,
   WelcomeConsole,
 } from "@/components/specialty/wave3";
+import {
+  OrgChartConsole, CalendarConsole, ActivityConsole, FavoritesConsole, BookmarksConsole,
+  GoalsConsole, LiveConsole, HeatmapsConsole, OfflineConsole, SessionsConsole,
+  DevicesConsole, ThreatsConsole, WalletConsole, LeaderboardConsole, ThemeConsole,
+  MlmConsole, BranchesConsole, RecruitmentConsole, PosConsole, ErpConsole,
+  InventoryConsole, ManufacturingConsole,
+} from "@/components/specialty/wave4";
 
 const specialty: Record<string, ComponentType> = {
   "/super-admin": SuperAdminCommand,
@@ -75,6 +82,28 @@ const specialty: Record<string, ComponentType> = {
   "/invoices": InvoicesConsole,
   "/licenses": LicensesConsole,
   "/documents": DocumentsConsole,
+  "/org-chart": OrgChartConsole,
+  "/calendar": CalendarConsole,
+  "/activity": ActivityConsole,
+  "/favorites": FavoritesConsole,
+  "/bookmarks": BookmarksConsole,
+  "/goals": GoalsConsole,
+  "/live": LiveConsole,
+  "/heatmaps": HeatmapsConsole,
+  "/offline": OfflineConsole,
+  "/sessions": SessionsConsole,
+  "/devices": DevicesConsole,
+  "/threats": ThreatsConsole,
+  "/wallet": WalletConsole,
+  "/leaderboard": LeaderboardConsole,
+  "/theme": ThemeConsole,
+  "/mlm": MlmConsole,
+  "/branches": BranchesConsole,
+  "/recruitment": RecruitmentConsole,
+  "/pos": PosConsole,
+  "/erp": ErpConsole,
+  "/inventory": InventoryConsole,
+  "/manufacturing": ManufacturingConsole,
 };
 
 export const Route = createFileRoute("/$")({
