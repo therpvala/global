@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SuperAdminRouteImport } from './routes/super-admin'
 import { Route as ManagerRouteImport } from './routes/manager'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AccountantRouteImport } from './routes/accountant'
 import { Route as AccountManagerRouteImport } from './routes/account-manager'
@@ -24,6 +25,11 @@ const SuperAdminRoute = SuperAdminRouteImport.update({
 const ManagerRoute = ManagerRouteImport.update({
   id: '/manager',
   path: '/manager',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/account-manager': typeof AccountManagerRoute
   '/accountant': typeof AccountantRoute
   '/admin': typeof AdminRoute
+  '/login': typeof LoginRoute
   '/manager': typeof ManagerRoute
   '/super-admin': typeof SuperAdminRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/account-manager': typeof AccountManagerRoute
   '/accountant': typeof AccountantRoute
   '/admin': typeof AdminRoute
+  '/login': typeof LoginRoute
   '/manager': typeof ManagerRoute
   '/super-admin': typeof SuperAdminRoute
 }
@@ -69,6 +77,7 @@ export interface FileRoutesById {
   '/account-manager': typeof AccountManagerRoute
   '/accountant': typeof AccountantRoute
   '/admin': typeof AdminRoute
+  '/login': typeof LoginRoute
   '/manager': typeof ManagerRoute
   '/super-admin': typeof SuperAdminRoute
 }
@@ -79,6 +88,7 @@ export interface FileRouteTypes {
     | '/account-manager'
     | '/accountant'
     | '/admin'
+    | '/login'
     | '/manager'
     | '/super-admin'
   fileRoutesByTo: FileRoutesByTo
@@ -87,6 +97,7 @@ export interface FileRouteTypes {
     | '/account-manager'
     | '/accountant'
     | '/admin'
+    | '/login'
     | '/manager'
     | '/super-admin'
   id:
@@ -95,6 +106,7 @@ export interface FileRouteTypes {
     | '/account-manager'
     | '/accountant'
     | '/admin'
+    | '/login'
     | '/manager'
     | '/super-admin'
   fileRoutesById: FileRoutesById
@@ -104,6 +116,7 @@ export interface RootRouteChildren {
   AccountManagerRoute: typeof AccountManagerRoute
   AccountantRoute: typeof AccountantRoute
   AdminRoute: typeof AdminRoute
+  LoginRoute: typeof LoginRoute
   ManagerRoute: typeof ManagerRoute
   SuperAdminRoute: typeof SuperAdminRoute
 }
@@ -122,6 +135,13 @@ declare module '@tanstack/react-router' {
       path: '/manager'
       fullPath: '/manager'
       preLoaderRoute: typeof ManagerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -160,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccountManagerRoute: AccountManagerRoute,
   AccountantRoute: AccountantRoute,
   AdminRoute: AdminRoute,
+  LoginRoute: LoginRoute,
   ManagerRoute: ManagerRoute,
   SuperAdminRoute: SuperAdminRoute,
 }
