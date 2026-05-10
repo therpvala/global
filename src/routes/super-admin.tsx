@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { RoleDashboard } from "@/components/RoleDashboard";
+import { SuperAdminCommand } from "@/components/specialty/SuperAdminCommand";
 
 export const Route = createFileRoute("/super-admin")({
   head: () => ({
@@ -8,5 +8,5 @@ export const Route = createFileRoute("/super-admin")({
       { name: "description", content: "Master operating control across the platform." },
     ],
   }),
-  component: () => <RoleDashboard role="super_admin" />,
+  component: () => <SuperAdminCommand />,
 });
