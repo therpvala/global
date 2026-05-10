@@ -1,13 +1,36 @@
+import type { ComponentType } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { modules } from "@/lib/modules";
 import { ModulePage } from "@/components/ModulePage";
 import { Button } from "@/components/ui/button";
 import { SuperAdminCommand } from "@/components/specialty/SuperAdminCommand";
 import { FranchisesDashboard } from "@/components/specialty/FranchisesDashboard";
+import {
+  CRMConsole,
+  AccountingConsole,
+  ApiManagerConsole,
+  SEOConsole,
+  ProjectsConsole,
+  HRMConsole,
+  MarketplaceConsole,
+  SubscriptionsConsole,
+  SecurityConsole,
+  HomeApps,
+} from "@/components/specialty/wave2";
 
-const specialty: Record<string, React.ComponentType> = {
+const specialty: Record<string, ComponentType> = {
   "/super-admin": SuperAdminCommand,
   "/franchises": FranchisesDashboard,
+  "/crm": CRMConsole,
+  "/accounting": AccountingConsole,
+  "/api-manager": ApiManagerConsole,
+  "/seo": SEOConsole,
+  "/projects": ProjectsConsole,
+  "/hrm": HRMConsole,
+  "/marketplace": MarketplaceConsole,
+  "/subscriptions": SubscriptionsConsole,
+  "/security": SecurityConsole,
+  "/apps": HomeApps,
 };
 
 export const Route = createFileRoute("/$")({
