@@ -305,7 +305,7 @@ export function OfflineConsole() {
       <KpiStrip kpis={[
         { label: "Devices offline", value: "18", delta: "Queued", tone: "neutral" },
         { label: "Pending mutations", value: "412", delta: "Will replay", tone: "neutral" },
-        { label: "Conflicts (24h)", value: "3", delta: "Resolved 2", tone: "warn" as any },
+        { label: "Conflicts (24h)", value: "3", delta: "Resolved 2", tone: "down" },
         { label: "Last full sync", value: "2 min", delta: "Healthy", tone: "up" },
       ]} />
       <Card><CardContent className="p-4 space-y-2">
@@ -331,7 +331,7 @@ export function SessionsConsole() {
       <KpiStrip kpis={[
         { label: "Active", value: "248", delta: "Live", tone: "up" },
         { label: "MFA enforced", value: "100%", delta: "Policy", tone: "up" },
-        { label: "Stale > 30d", value: "12", delta: "Cleanup", tone: "warn" as any },
+        { label: "Stale > 30d", value: "12", delta: "Cleanup", tone: "down" },
         { label: "Unusual logins", value: "0", delta: "All clear", tone: "up" },
       ]} />
       <Card><CardContent className="p-4"><Table>
@@ -677,7 +677,7 @@ export function InventoryConsole() {
         { label: "SKUs", value: "4,128", delta: "+42", tone: "up" },
         { label: "Stock value", value: "$2.84M", delta: "+3%", tone: "up" },
         { label: "Low stock", value: "38", delta: "Reorder", tone: "down" },
-        { label: "Backorders", value: "12", delta: "ETA 5d", tone: "warn" as any },
+        { label: "Backorders", value: "12", delta: "ETA 5d", tone: "down" },
       ]} />
       <div className="grid lg:grid-cols-3 gap-3">
         <Card className="lg:col-span-2"><CardContent className="p-4 space-y-3">
