@@ -88,7 +88,7 @@ export function AppSidebar() {
                   isActive={pathname === "/"}
                   tooltip="Dashboard"
                 >
-                  <Link to="/">
+                  <Link to={"/" as any}>
                     <Home className="h-4 w-4" />
                     <span>Dashboard</span>
                   </Link>
@@ -100,7 +100,7 @@ export function AppSidebar() {
                   isActive={isActive("/super-admin")}
                   tooltip="Super Admin"
                 >
-                  <Link to="/super-admin">
+                  <Link to={"/super-admin" as any}>
                     <Crown className="h-4 w-4" />
                     <span>Super Admin</span>
                   </Link>
@@ -112,7 +112,7 @@ export function AppSidebar() {
                   isActive={isActive("/master")}
                   tooltip="Operations"
                 >
-                  <Link to="/master">
+                  <Link to={"/admin" as any}>
                     <Activity className="h-4 w-4" />
                     <span>Operations</span>
                   </Link>
