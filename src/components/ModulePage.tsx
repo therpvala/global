@@ -398,6 +398,341 @@ export function ModulePage({ module }: { module: ModuleItem }) {
           <ActivityFeed items={[...activity, ...activity]} />
         </TabsContent>
 
+        {/* Categories — category / subcategory / nano / micro */}
+        <TabsContent value="categories" className="mt-4 space-y-3">
+          <FilterBar placeholder="Search taxonomy…" chips={["Category", "Subcategory", "Nano", "Micro"]} />
+          <div className="grid gap-3 md:grid-cols-4">
+            {[
+              { level: "Category", count: 12, examples: ["Operations", "Commerce", "Finance"] },
+              { level: "Subcategory", count: 48, examples: ["Orders", "Refunds", "Payouts"] },
+              { level: "Nano category", count: 184, examples: ["EU orders", "US refunds"] },
+              { level: "Micro category", count: 612, examples: ["SKU-EU-12", "SKU-US-08"] },
+            ].map((t) => (
+              <Card key={t.level} className="border-border/60">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-semibold inline-flex items-center gap-2">
+                      <Layers className="h-4 w-4 text-primary" /> {t.level}
+                    </div>
+                    <Badge variant="secondary" className="font-normal">{t.count}</Badge>
+                  </div>
+                  <ul className="mt-3 space-y-1.5 text-xs text-muted-foreground">
+                    {t.examples.map((e) => (
+                      <li key={e} className="flex items-center justify-between rounded-md border border-border/60 px-2 py-1.5">
+                        <span className="truncate">{e}</span>
+                        <ChevronRight className="h-3 w-3" />
+                      </li>
+                    ))}
+                  </ul>
+                  <Button variant="ghost" size="sm" className="mt-2 h-7 px-2 text-xs">Manage</Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        {/* Workflow */}
+        <TabsContent value="workflow" className="mt-4 space-y-3">
+          <Card className="border-border/60">
+            <CardContent className="p-4">
+              <SectionHeader title="Enterprise workflow" desc={`Stage-gated lifecycle for ${module.title.toLowerCase()}`} />
+              <div className="mt-4 flex flex-wrap items-center gap-2">
+                {["Draft", "Validate", "Approve", "Execute", "Reconcile", "Close"].map((s, i, arr) => (
+                  <div key={s} className="flex items-center gap-2">
+                    <div className={"inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs " + (i < 2 ? "border-success/30 text-success bg-success/5" : i === 2 ? "border-warning/30 text-warning bg-warning/5" : "border-border/60 text-muted-foreground")}>
+                      <span className="h-1.5 w-1.5 rounded-full bg-current" /> {s}
+                    </div>
+                    {i < arr.length - 1 && <ChevronRight className="h-3 w-3 text-muted-foreground" />}
+                  </div>
+                ))}
+              </div>
+              <Progress value={42} className="mt-4 h-1.5" />
+              <div className="mt-1 text-[11px] text-muted-foreground">42% of records progressed past Approve gate this week</div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Automation */}
+        <TabsContent value="automation" className="mt-4 space-y-3">
+          <div className="grid gap-3 md:grid-cols-2">
+            {[
+              { name: "Auto-assign new records", trigger: "On create", action: "Route by territory + load", runs: "1,284", enabled: true },
+              { name: "Stale record reminder", trigger: "Idle > 48h", action: "Notify owner & manager", runs: "412", enabled: true },
+              { name: "Escalate breached SLA", trigger: "SLA breached", action: "Escalate to lead", runs: "37", enabled: true },
+              { name: "Nightly reconciliation", trigger: "Daily 02:00 UTC", action: "Sync ledger + flag drift", runs: "30", enabled: false },
+            ].map((r) => (
+              <Card key={r.name} className="border-border/60">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="inline-flex items-center gap-2 text-sm font-semibold">
+                        <Zap className="h-4 w-4 text-primary" /> {r.name}
+                      </div>
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        <span className="font-medium text-foreground">{r.trigger}</span> → {r.action}
+                      </div>
+                      <div className="mt-2 text-[11px] text-muted-foreground">{r.runs} runs · 30d</div>
+                    </div>
+                    <Switch defaultChecked={r.enabled} />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        {/* Approvals (chains) */}
+        <TabsContent value="approvals" className="mt-4 space-y-3">
+          <Card className="border-border/60">
+            <CardContent className="p-4">
+              <SectionHeader title="Approval chains" desc="Multi-step routing with SLA tracking" />
+              <div className="mt-3 space-y-2">
+                {[
+                  { step: 1, role: "Owner", who: "Marcus Hill", state: "done" },
+                  { step: 2, role: "Team lead", who: "Ava Chen", state: "done" },
+                  { step: 3, role: "Finance", who: "Priya Shah", state: "current" },
+                  { step: 4, role: "Compliance", who: "—", state: "pending" },
+                  { step: 5, role: "CFO", who: "—", state: "pending" },
+                ].map((s) => (
+                  <div key={s.step} className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={"grid h-7 w-7 place-items-center rounded-full text-[11px] font-semibold " + (s.state === "done" ? "bg-success/10 text-success" : s.state === "current" ? "bg-warning/10 text-warning" : "bg-muted text-muted-foreground")}>
+                        {s.step}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium">{s.role}</div>
+                        <div className="text-[11px] text-muted-foreground">{s.who}</div>
+                      </div>
+                    </div>
+                    <Badge variant="outline" className="font-normal capitalize">{s.state === "done" ? <CheckCircle2 className="mr-1 h-3 w-3 text-success" /> : s.state === "current" ? <Clock className="mr-1 h-3 w-3 text-warning" /> : <Clock className="mr-1 h-3 w-3 text-muted-foreground" />}{s.state}</Badge>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+          <ApprovalsList items={approvals} />
+        </TabsContent>
+
+        {/* Reports */}
+        <TabsContent value="reports" className="mt-4 space-y-3">
+          <FilterBar placeholder="Search reports…" chips={["Pinned", "Mine", "Shared", "Scheduled"]} />
+          <div className="grid gap-3 md:grid-cols-3">
+            {[
+              "Daily summary", "Weekly performance", "Monthly close", "Cohort analysis",
+              "SLA breach report", "Top performers", "Anomaly digest", "Forecast vs actual", "Tenant breakdown",
+            ].map((r) => (
+              <Card key={r} className="border-border/60">
+                <CardContent className="p-4">
+                  <div className="inline-flex items-center gap-2 text-sm font-semibold">
+                    <FileText className="h-4 w-4 text-primary" /> {r}
+                  </div>
+                  <div className="mt-1 text-xs text-muted-foreground">Auto-generated · last run today</div>
+                  <div className="mt-2 flex gap-1.5">
+                    <Button variant="outline" size="sm" className="h-7 px-2 text-xs">Run</Button>
+                    <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">Schedule</Button>
+                    <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">Export</Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        {/* Audit */}
+        <TabsContent value="audit" className="mt-4 space-y-3">
+          <FilterBar placeholder="Search audit trail…" chips={["User", "Action", "Date", "IP"]} />
+          <Card className="border-border/60">
+            <CardContent className="p-0">
+              <div className="divide-y divide-border/60">
+                {[
+                  { user: "Ava Chen", act: "updated record", target: "REC-1024", ip: "10.4.2.1", t: "2 min" },
+                  { user: "Marcus Hill", act: "approved", target: "REQ-118", ip: "10.4.2.7", t: "14 min" },
+                  { user: "System", act: "auto-sync", target: "ledger", ip: "internal", t: "1 h" },
+                  { user: "Priya Shah", act: "exported CSV", target: "records 1–500", ip: "10.4.2.9", t: "3 h" },
+                  { user: "Diego Romero", act: "deleted draft", target: "REC-0991", ip: "10.4.2.3", t: "yday" },
+                ].map((a, i) => (
+                  <div key={i} className="grid grid-cols-12 items-center gap-2 px-4 py-2.5 text-xs">
+                    <div className="col-span-3 font-medium">{a.user}</div>
+                    <div className="col-span-3 text-muted-foreground">{a.act}</div>
+                    <div className="col-span-3 truncate">{a.target}</div>
+                    <div className="col-span-2 text-muted-foreground tabular-nums">{a.ip}</div>
+                    <div className="col-span-1 text-right text-muted-foreground">{a.t}</div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Notifications */}
+        <TabsContent value="notifications" className="mt-4 space-y-3">
+          <div className="grid gap-3 md:grid-cols-2">
+            {[
+              { ch: "Email", desc: "Daily digest + critical alerts", on: true },
+              { ch: "In-app", desc: "Real-time bell + activity feed", on: true },
+              { ch: "Slack", desc: "#ops channel · @here for breaches", on: true },
+              { ch: "SMS", desc: "On-call escalation only", on: false },
+              { ch: "Webhook", desc: "POST to ops.internal/events", on: true },
+              { ch: "Mobile push", desc: "iOS / Android operator app", on: false },
+            ].map((c) => (
+              <Card key={c.ch} className="border-border/60">
+                <CardContent className="p-4 flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="inline-flex items-center gap-2 text-sm font-semibold">
+                      <Bell className="h-4 w-4 text-primary" /> {c.ch}
+                    </div>
+                    <div className="mt-0.5 text-xs text-muted-foreground">{c.desc}</div>
+                  </div>
+                  <Switch defaultChecked={c.on} />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        {/* Integrations */}
+        <TabsContent value="integrations" className="mt-4 space-y-3">
+          <FilterBar placeholder="Search integrations…" chips={["Connected", "Available", "Marketplace"]} />
+          <div className="grid gap-3 md:grid-cols-3">
+            {[
+              { n: "Stripe", s: "Connected", t: "Payments" },
+              { n: "QuickBooks", s: "Connected", t: "Ledger" },
+              { n: "Slack", s: "Connected", t: "Messaging" },
+              { n: "HubSpot", s: "Available", t: "CRM" },
+              { n: "Twilio", s: "Available", t: "SMS / Voice" },
+              { n: "Cloudflare", s: "Connected", t: "Edge" },
+            ].map((i) => (
+              <Card key={i.n} className="border-border/60">
+                <CardContent className="p-4 flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="inline-flex items-center gap-2 text-sm font-semibold">
+                      <Plug className="h-4 w-4 text-primary" /> {i.n}
+                    </div>
+                    <div className="mt-0.5 text-xs text-muted-foreground">{i.t}</div>
+                  </div>
+                  <Badge variant={i.s === "Connected" ? "outline" : "secondary"} className={"font-normal " + (i.s === "Connected" ? "border-success/30 text-success" : "")}>{i.s}</Badge>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        {/* AI Assist */}
+        <TabsContent value="ai" className="mt-4 space-y-3">
+          <Card className="border-border/60">
+            <CardContent className="p-4">
+              <SectionHeader
+                title={`Copilot for ${module.title}`}
+                desc="Generate, summarize, classify, predict — grounded on tenant data"
+                right={<Badge variant="outline" className="font-normal"><Sparkles className="mr-1 h-3 w-3" />Beta</Badge>}
+              />
+              <div className="mt-3 relative">
+                <Bot className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input className="h-10 pl-9" placeholder={`Ask anything about ${module.title.toLowerCase()}…`} />
+              </div>
+              <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                {["Summarize backlog", "Detect anomalies", "Forecast next 30d", "Draft response"].map((s) => (
+                  <button key={s} className="rounded-lg border border-border/60 px-3 py-2 text-left hover:border-primary/40 hover:bg-accent/40 transition">
+                    {s}
+                  </button>
+                ))}
+              </div>
+              <div className="mt-3 grid gap-2 md:grid-cols-3">
+                {[
+                  { i: AlertTriangle, t: "Anomaly", d: "Unusual spike in returns from EU region (+38%)" },
+                  { i: Sparkles, t: "Insight", d: "Pipeline conversion improved 4.2% MoM" },
+                  { i: CheckCircle2, t: "Recommendation", d: "Auto-archive 92 stale draft records" },
+                ].map((c) => (
+                  <div key={c.t} className="rounded-lg border border-border/60 p-3">
+                    <div className="inline-flex items-center gap-1.5 text-xs font-semibold"><c.i className="h-3.5 w-3.5 text-primary" /> {c.t}</div>
+                    <div className="mt-1 text-xs text-muted-foreground">{c.d}</div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Import / Export */}
+        <TabsContent value="data" className="mt-4 space-y-3">
+          <div className="grid gap-3 md:grid-cols-2">
+            <Card className="border-border/60">
+              <CardContent className="p-4">
+                <div className="inline-flex items-center gap-2 text-sm font-semibold"><Upload className="h-4 w-4 text-primary" /> Import</div>
+                <div className="mt-1 text-xs text-muted-foreground">CSV, XLSX, JSON · field mapping + dry-run validation</div>
+                <div className="mt-3 rounded-lg border border-dashed border-border/60 p-6 text-center text-xs text-muted-foreground">
+                  Drop a file here or click to browse
+                </div>
+                <div className="mt-2 flex gap-2">
+                  <Button size="sm" className="h-8">Start import</Button>
+                  <Button variant="ghost" size="sm" className="h-8">Download template</Button>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-border/60">
+              <CardContent className="p-4">
+                <div className="inline-flex items-center gap-2 text-sm font-semibold"><Download className="h-4 w-4 text-primary" /> Export</div>
+                <div className="mt-1 text-xs text-muted-foreground">Scheduled or one-off · filtered view export</div>
+                <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
+                  {["CSV", "XLSX", "PDF", "JSON", "Parquet", "API"].map((f) => (
+                    <Button key={f} variant="outline" size="sm" className="h-8">{f}</Button>
+                  ))}
+                </div>
+                <div className="mt-3 text-[11px] text-muted-foreground inline-flex items-center gap-1"><ScrollText className="h-3 w-3" /> Last export: today, 4,210 rows</div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Access — role & tenant */}
+        <TabsContent value="access" className="mt-4 space-y-3">
+          <div className="grid gap-3 md:grid-cols-2">
+            <Card className="border-border/60">
+              <CardContent className="p-4">
+                <div className="inline-flex items-center gap-2 text-sm font-semibold"><Shield className="h-4 w-4 text-primary" /> Role access</div>
+                <div className="mt-3 space-y-2 text-xs">
+                  {[
+                    { r: "Super admin", v: "Full" },
+                    { r: "Admin", v: "Read / Write / Approve" },
+                    { r: "Manager", v: "Read / Write" },
+                    { r: "Accountant", v: "Read · Finance scope" },
+                    { r: "Account manager", v: "Read · own accounts" },
+                    { r: "User", v: "Read only" },
+                  ].map((r) => (
+                    <div key={r.r} className="flex items-center justify-between rounded-md border border-border/60 px-2.5 py-1.5">
+                      <span className="font-medium">{r.r}</span>
+                      <Badge variant="outline" className="font-normal">{r.v}</Badge>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-border/60">
+              <CardContent className="p-4">
+                <div className="inline-flex items-center gap-2 text-sm font-semibold"><Building2 className="h-4 w-4 text-primary" /> Tenant & company scope</div>
+                <div className="mt-3 relative">
+                  <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                  <Input className="h-9 pl-9 text-xs" placeholder="Filter tenants / companies…" />
+                </div>
+                <div className="mt-3 space-y-1.5 text-xs">
+                  {[
+                    { t: "Acme Holdings", c: 8, st: "Active" },
+                    { t: "Globex EU", c: 4, st: "Active" },
+                    { t: "Initech APAC", c: 6, st: "Trial" },
+                    { t: "Umbrella Retail", c: 12, st: "Active" },
+                  ].map((t) => (
+                    <div key={t.t} className="flex items-center justify-between rounded-md border border-border/60 px-2.5 py-1.5">
+                      <span className="font-medium truncate">{t.t}</span>
+                      <span className="text-muted-foreground">{t.c} companies</span>
+                      <Badge variant="outline" className="font-normal">{t.st}</Badge>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
         {/* Settings */}
         <TabsContent value="settings" className="mt-4">
           <div className="grid md:grid-cols-2 gap-4">
