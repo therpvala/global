@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { Search, Command, LogOut, Bell } from "lucide-react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -35,8 +35,15 @@ export function AppShell({ children }: { children: ReactNode }) {
     (m) => pathname === m.url || pathname.startsWith(m.url + "/"),
   );
 
+  // Hydrate sidebar open state from cookie so it persists across reloads/nav.
+  const [open, setOpen] = useState<boolean>(true);
+  useEffect(() => {
+    const match = document.cookie.match(/(?:^|; )sidebar_state=([^;]+)/);
+    if (match) setOpen(match[1] === "true");
+  }, []);
+
   return (
-    <SidebarProvider>
+    <SidebarProvider open={open} onOpenChange={setOpen}>
       <div className="flex min-h-screen w-full bg-background">
         <AppSidebar />
         <div className="flex flex-1 flex-col min-w-0">
