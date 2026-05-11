@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
   ArrowUpRight,
   Bell,
@@ -28,6 +29,20 @@ import {
   type ActivityItem,
   type Approval,
 } from "./enterprise";
+
+function ClientDate() {
+  const [label, setLabel] = useState("");
+  useEffect(() => {
+    setLabel(
+      new Date().toLocaleDateString(undefined, {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+      }),
+    );
+  }, []);
+  return <>{label}</>;
+}
 
 const sampleActivity: ActivityItem[] = [
   { who: "Ava Chen", what: "closed deal", target: "Acme Industries · $84K", when: "12 min ago", kind: "approve" },
