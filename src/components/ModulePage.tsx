@@ -241,24 +241,37 @@ export function ModulePage({ module }: { module: ModuleItem }) {
 
       {/* Tabs */}
       <Tabs defaultValue="overview">
-        <TabsList className="bg-transparent border-b border-border/60 rounded-none w-full justify-start h-auto p-0">
-          {[
-            ["overview", "Overview"],
-            ["records", "Records"],
-            ["pipeline", "Pipeline"],
-            ["analytics", "Analytics"],
-            ["activity", "Activity"],
-            ["settings", "Settings"],
-          ].map(([v, l]) => (
-            <TabsTrigger
-              key={v}
-              value={v}
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-3 py-2 text-sm"
-            >
-              {l}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <ScrollArea className="w-full">
+          <TabsList className="bg-transparent border-b border-border/60 rounded-none w-max min-w-full justify-start h-auto p-0">
+            {[
+              ["overview", "Overview"],
+              ["records", "Records"],
+              ["pipeline", "Pipeline"],
+              ["categories", "Categories"],
+              ["workflow", "Workflow"],
+              ["automation", "Automation"],
+              ["approvals", "Approvals"],
+              ["analytics", "Analytics"],
+              ["reports", "Reports"],
+              ["activity", "Activity"],
+              ["audit", "Audit"],
+              ["notifications", "Notifications"],
+              ["integrations", "Integrations"],
+              ["ai", "AI Assist"],
+              ["data", "Import / Export"],
+              ["access", "Access"],
+              ["settings", "Settings"],
+            ].map(([v, l]) => (
+              <TabsTrigger
+                key={v}
+                value={v}
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-3 py-2 text-xs md:text-sm whitespace-nowrap"
+              >
+                {l}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </ScrollArea>
 
         {/* Overview */}
         <TabsContent value="overview" className="mt-4 space-y-5">
