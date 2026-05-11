@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
   ArrowUpRight,
   Bell,
@@ -28,6 +29,20 @@ import {
   type ActivityItem,
   type Approval,
 } from "./enterprise";
+
+function ClientDate() {
+  const [label, setLabel] = useState("");
+  useEffect(() => {
+    setLabel(
+      new Date().toLocaleDateString(undefined, {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+      }),
+    );
+  }, []);
+  return <>{label}</>;
+}
 
 const sampleActivity: ActivityItem[] = [
   { who: "Ava Chen", what: "closed deal", target: "Acme Industries · $84K", when: "12 min ago", kind: "approve" },
@@ -76,7 +91,7 @@ export function RoleDashboard({ role: forcedRole }: { role?: AppRole }) {
                 <span className="opacity-50">·</span>
                 <span>Welcome, {user?.name ?? "Operator"}</span>
                 <span className="opacity-50">·</span>
-                <span>{new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}</span>
+                <ClientDate />
               </div>
             </div>
 
