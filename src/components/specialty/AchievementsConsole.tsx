@@ -253,13 +253,6 @@ function LibraryTab() {
     <div className="space-y-4">
       <FilterBar
         chips={["All", "Active", "Draft", "Scheduled", "Archived"]}
-        right={
-          <>
-            <Button size="sm" variant="outline"><Upload className="mr-1.5 h-3.5 w-3.5" />Import</Button>
-            <Button size="sm" variant="outline"><Download className="mr-1.5 h-3.5 w-3.5" />Export</Button>
-            <Button size="sm"><Plus className="mr-1.5 h-3.5 w-3.5" />Create</Button>
-          </>
-        }
       />
       <Card>
         <CardContent className="p-0">
@@ -485,12 +478,6 @@ function LeaderboardTab() {
     <div className="space-y-4">
       <FilterBar
         chips={scopes}
-        right={
-          <>
-            <Button size="sm" variant="outline"><Filter className="mr-1.5 h-3.5 w-3.5" />Filters</Button>
-            <Button size="sm" variant="outline"><Download className="mr-1.5 h-3.5 w-3.5" />Export</Button>
-          </>
-        }
       />
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
