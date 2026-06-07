@@ -46,6 +46,7 @@ import {
   MlmConsole, BranchesConsole, RecruitmentConsole, PosConsole, ErpConsole,
   InventoryConsole, ManufacturingConsole,
 } from "@/components/specialty/wave4";
+import { AchievementsConsole } from "@/components/specialty/AchievementsConsole";
 
 const specialty: Record<string, ComponentType> = {
   "/super-admin": SuperAdminCommand,
@@ -104,6 +105,7 @@ const specialty: Record<string, ComponentType> = {
   "/erp": ErpConsole,
   "/inventory": InventoryConsole,
   "/manufacturing": ManufacturingConsole,
+  "/achievements": AchievementsConsole,
 };
 
 export const Route = createFileRoute("/$")({
