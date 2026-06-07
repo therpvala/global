@@ -92,6 +92,7 @@ export const modules: ModuleItem[] = [
   { title: "Profile", url: "/profile", icon: User, group: "System", desc: "Your profile" },
   { title: "Wallet", url: "/wallet", icon: Wallet, group: "System", desc: "Balance & payouts" },
   { title: "Leaderboard", url: "/leaderboard", icon: Trophy, group: "System", desc: "Top performers" },
+  { title: "Achievements", url: "/achievements", icon: Trophy, group: "System", desc: "Rewards · XP · trophies · ranks" },
   { title: "Theme", url: "/theme", icon: Palette, group: "System", desc: "Branding & theme" },
   { title: "Roles", url: "/roles", icon: ShieldCheck, group: "System", desc: "Permissions matrix" },
   { title: "Settings", url: "/settings", icon: Settings, group: "System", desc: "Full configuration" },
