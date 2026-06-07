@@ -198,7 +198,7 @@ function CommandTab() {
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardContent className="p-4">
-            <SectionHeader title="XP issued across modules (30d)" subtitle="Revenue · Sales · Support · Dev · Training" />
+            <SectionHeader title="XP issued across modules (30d)" desc="Revenue · Sales · Support · Dev · Training" />
             <MiniBarChart data={[18, 24, 22, 31, 28, 36, 42, 38, 44, 51, 47, 56]} />
           </CardContent>
         </Card>
@@ -214,13 +214,13 @@ function CommandTab() {
           <CardContent className="p-4">
             <SectionHeader
               title="Recent unlocks"
-              action={<Button size="sm" variant="ghost">View all</Button>}
+              right={<Button size="sm" variant="ghost">View all</Button>}
             />
             <ActivityFeed
               items={[
-                { who: "Aarav Mehta",     what: "unlocked Revenue Rocket (+5000 XP)", when: "2m ago", tone: "good" },
-                { who: "Wei Zhang",       what: "earned Top Developer trophy",       when: "11m ago", tone: "good" },
-                { who: "Sofia Rossi",     what: "ranked up to Champion",             when: "27m ago", tone: "good" },
+                { who: "Aarav Mehta",     what: "unlocked Revenue Rocket (+5000 XP)", when: "2m ago" },
+                { who: "Wei Zhang",       what: "earned Top Developer trophy",       when: "11m ago" },
+                { who: "Sofia Rossi",     what: "ranked up to Champion",             when: "27m ago" },
                 { who: "Chloé Laurent",   what: "earned Renewal Master badge",       when: "1h ago",  tone: "good" },
                 { who: "Omar Haddad",     what: "completed Daily Challenge × 7",     when: "2h ago",  tone: "info" },
                 { who: "Isabella García", what: "redeemed 2,400 pts in Reward Store",when: "3h ago",  tone: "info" },
@@ -332,8 +332,8 @@ function XPLevelsTab() {
         <CardContent className="p-4">
           <SectionHeader
             title="Level ladder · 1 → 1000+"
-            subtitle="Custom XP curves, level rewards and benefits"
-            action={<Button size="sm" variant="outline"><Settings className="mr-1.5 h-3.5 w-3.5" />Edit curve</Button>}
+            desc="Custom XP curves, level rewards and benefits"
+            right={<Button size="sm" variant="outline"><Settings className="mr-1.5 h-3.5 w-3.5" />Edit curve</Button>}
           />
           <div className="mt-3 grid gap-2 md:grid-cols-5">
             {[1, 10, 50, 100, 250, 500, 750, 900, 999, 1000].map((lvl) => (
@@ -353,7 +353,7 @@ function XPLevelsTab() {
       </Card>
       <Card>
         <CardContent className="p-4">
-          <SectionHeader title="Rank ladder" subtitle="Starter → Global Champion" />
+          <SectionHeader title="Rank ladder" desc="Starter → Global Champion" />
           <RankLadder />
         </CardContent>
       </Card>
@@ -369,7 +369,7 @@ function TrophiesBadgesTab() {
     <div className="space-y-4">
       <Card>
         <CardContent className="p-4">
-          <SectionHeader title="Trophy management" subtitle="Lifetime milestones across the Nexus" />
+          <SectionHeader title="Trophy management" desc="Lifetime milestones across the Nexus" />
           <div className="mt-3 grid gap-2 md:grid-cols-3 lg:grid-cols-4">
             {TROPHIES.map((t) => (
               <TrophyCard key={t.name} name={t.name} Icon={t.icon} holders={t.holders} />
@@ -391,7 +391,7 @@ function TrophiesBadgesTab() {
       </Card>
       <Card>
         <CardContent className="p-4">
-          <SectionHeader title="Trophy Room · 3D gallery" subtitle="Glass showcase · animated rotation · timeline" />
+          <SectionHeader title="Trophy Room · 3D gallery" desc="Glass showcase · animated rotation · timeline" />
           <div className="mt-3 grid grid-cols-3 gap-3 md:grid-cols-6">
             {Array.from({ length: 12 }).map((_, i) => (
               <div
@@ -451,8 +451,8 @@ function RewardsTab() {
         <CardContent className="p-4">
           <SectionHeader
             title="Reward Store"
-            subtitle="Redeem XP and points · unlock frames, themes and effects"
-            action={<Button size="sm"><Plus className="mr-1.5 h-3.5 w-3.5" />Add item</Button>}
+            desc="Redeem XP and points · unlock frames, themes and effects"
+            right={<Button size="sm"><Plus className="mr-1.5 h-3.5 w-3.5" />Add item</Button>}
           />
           <div className="mt-3 grid gap-3 md:grid-cols-3">
             {store.map((s) => {
@@ -544,7 +544,7 @@ function LeaderboardTab() {
         </Card>
         <Card>
           <CardContent className="p-4">
-            <SectionHeader title="Global leaderboard map" subtitle="Top countries · interactive" />
+            <SectionHeader title="Global leaderboard map" desc="Top countries · interactive" />
             <div className="mt-3 aspect-square rounded-xl border border-border/60 bg-gradient-to-br from-sky-400/10 via-violet-500/10 to-rose-500/10 grid place-items-center">
               <Map className="h-16 w-16 text-muted-foreground" />
             </div>
@@ -593,8 +593,8 @@ function ChallengesTab() {
         <CardContent className="p-4">
           <SectionHeader
             title="Challenge Center"
-            subtitle="Daily · weekly · monthly · quarterly · yearly"
-            action={<Button size="sm"><Plus className="mr-1.5 h-3.5 w-3.5" />New challenge</Button>}
+            desc="Daily · weekly · monthly · quarterly · yearly"
+            right={<Button size="sm"><Plus className="mr-1.5 h-3.5 w-3.5" />New challenge</Button>}
           />
           <Table className="mt-2">
             <TableHeader>
@@ -666,7 +666,7 @@ function CertificatesHallTab() {
         <CardContent className="p-4">
           <SectionHeader
             title="Certificate management"
-            action={<Button size="sm"><FileSignature className="mr-1.5 h-3.5 w-3.5" />Issue certificate</Button>}
+            right={<Button size="sm"><FileSignature className="mr-1.5 h-3.5 w-3.5" />Issue certificate</Button>}
           />
           <div className="mt-3 grid gap-3 md:grid-cols-3">
             {certs.map((c) => (
@@ -683,7 +683,7 @@ function CertificatesHallTab() {
       </Card>
       <Card>
         <CardContent className="p-4">
-          <SectionHeader title="Hall of Fame" subtitle="Recognition · employee, dev, reseller, vendor, franchise, customer of the month" />
+          <SectionHeader title="Hall of Fame" desc="Recognition · employee, dev, reseller, vendor, franchise, customer of the month" />
           <Table className="mt-2">
             <TableHeader>
               <TableRow>
@@ -722,7 +722,7 @@ function EngineTab() {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardContent className="p-4">
-            <SectionHeader title="Celebration Engine" subtitle="Unlock · level up · rank up · champion" />
+            <SectionHeader title="Celebration Engine" desc="Unlock · level up · rank up · champion" />
             <div className="mt-3 grid grid-cols-2 gap-2">
               {[
                 "Achievement Unlock", "Level Up", "Rank Up",
@@ -772,7 +772,7 @@ function EngineTab() {
       </div>
       <Card>
         <CardContent className="p-4">
-          <SectionHeader title="Role reward rules" subtitle="What earns XP per role" />
+          <SectionHeader title="Role reward rules" desc="What earns XP per role" />
           <div className="mt-3 grid gap-3 md:grid-cols-3">
             {role.map((r) => (
               <div key={r.role} className="rounded-xl border border-border/60 p-3">
@@ -793,8 +793,8 @@ function EngineTab() {
         <CardContent className="p-4">
           <SectionHeader
             title="AI Achievement Engine"
-            subtitle="Suggest · detect · predict · recommend · generate"
-            action={<Button size="sm" variant="outline"><Bot className="mr-1.5 h-3.5 w-3.5" />Run engine</Button>}
+            desc="Suggest · detect · predict · recommend · generate"
+            right={<Button size="sm" variant="outline"><Bot className="mr-1.5 h-3.5 w-3.5" />Run engine</Button>}
           />
           <div className="mt-3 grid gap-2 md:grid-cols-5">
             {[
