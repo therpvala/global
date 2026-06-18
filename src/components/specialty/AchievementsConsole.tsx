@@ -9,6 +9,9 @@ import {
   Search, Plus, Filter, Download, Upload, Settings, Bell, Volume2, VolumeX,
   Play, Pause, ChevronRight, CheckCircle2, Clock, BarChart3, Layers,
   Rocket, Globe, Palette, BookOpen, FileSignature, Coins, Lock,
+  Calendar, Mail, MessageSquare, Eye, Edit3, Copy, Trash2, RefreshCw,
+  ArrowUpRight, ArrowDownRight, Hash, Heart, ThumbsUp, Share2, GitBranch,
+  Webhook, Database, Key, AlertTriangle, Info, Smartphone, Monitor,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
