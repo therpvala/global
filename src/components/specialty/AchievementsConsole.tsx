@@ -765,6 +765,62 @@ function RewardsTab() {
           </div>
         </CardContent>
       </Card>
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardContent className="p-4">
+            <SectionHeader title="Redemption history" right={<Button size="sm" variant="outline"><Download className="mr-1.5 h-3.5 w-3.5" />Export</Button>} />
+            <Table className="mt-2">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>When</TableHead>
+                  <TableHead>User</TableHead>
+                  <TableHead>Item</TableHead>
+                  <TableHead className="text-right">Cost</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {[
+                  { t: "2m ago", u: "Aarav Mehta",    i: "Champion Frame", c: "12,000 pts", s: "Delivered" },
+                  { t: "14m ago",u: "Sofia Rossi",     i: "Wallet $50",     c: "9,500 pts",  s: "Delivered" },
+                  { t: "31m ago",u: "Wei Zhang",       i: "Theme — Noir",   c: "4,200 pts",  s: "Delivered" },
+                  { t: "1h ago", u: "Chloé Laurent",   i: "Animated Effect",c: "3,500 pts",  s: "Pending" },
+                  { t: "2h ago", u: "Omar Haddad",     i: "Premium 30d",    c: "20,000 pts", s: "Delivered" },
+                ].map((r, i) => (
+                  <TableRow key={i}>
+                    <TableCell className="text-xs text-muted-foreground">{r.t}</TableCell>
+                    <TableCell className="font-medium">{r.u}</TableCell>
+                    <TableCell>{r.i}</TableCell>
+                    <TableCell className="text-right tabular-nums">{r.c}</TableCell>
+                    <TableCell><Badge variant={r.s === "Delivered" ? "default" : "outline"}>{r.s}</Badge></TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="Wallet" desc="Player credit balance & payouts" />
+            <div className="mt-3 rounded-2xl bg-gradient-to-br from-primary to-primary/60 p-4 text-primary-foreground">
+              <div className="text-xs opacity-80">Total balance</div>
+              <div className="text-3xl font-bold tabular-nums">$48,210</div>
+              <div className="mt-1 text-[11px] opacity-80">across 18,402 wallets</div>
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-2 text-center">
+              <div className="rounded-lg border border-border/60 p-2">
+                <div className="text-[11px] text-muted-foreground">Pending</div>
+                <div className="text-base font-bold">$2,140</div>
+              </div>
+              <div className="rounded-lg border border-border/60 p-2">
+                <div className="text-[11px] text-muted-foreground">Paid 30d</div>
+                <div className="text-base font-bold">$18.9K</div>
+              </div>
+            </div>
+            <Button size="sm" className="mt-3 w-full"><Coins className="mr-1.5 h-3.5 w-3.5" />Process payouts</Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
