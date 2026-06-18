@@ -1135,6 +1135,44 @@ function CertificatesHallTab() {
           </Table>
         </CardContent>
       </Card>
+      <Card>
+        <CardContent className="p-4">
+          <SectionHeader title="Player profile · spotlight" desc="Aarav Mehta · Reseller · India" right={<Button size="sm" variant="outline"><Share2 className="mr-1.5 h-3.5 w-3.5" />Share</Button>} />
+          <div className="mt-3 grid gap-4 lg:grid-cols-3">
+            <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-amber-400/10 via-rose-500/10 to-violet-500/10 p-4">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-14 w-14 ring-2 ring-amber-400"><AvatarFallback>AM</AvatarFallback></Avatar>
+                <div>
+                  <div className="font-semibold">Aarav Mehta</div>
+                  <div className="text-[11px] text-muted-foreground">@aarav · Mumbai</div>
+                  <Badge className="mt-1 text-[10px]"><Crown className="mr-1 h-3 w-3" /> Global Champion</Badge>
+                </div>
+              </div>
+              <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+                <div><div className="text-lg font-bold">1.28M</div><div className="text-[10px] text-muted-foreground">XP</div></div>
+                <div><div className="text-lg font-bold">L 947</div><div className="text-[10px] text-muted-foreground">Level</div></div>
+                <div><div className="text-lg font-bold">142d</div><div className="text-[10px] text-muted-foreground">Streak</div></div>
+              </div>
+            </div>
+            <div className="rounded-xl border border-border/60 p-3 lg:col-span-2">
+              <div className="text-xs font-semibold mb-2">Recent achievements</div>
+              <div className="grid grid-cols-4 gap-2">
+                {[Trophy, Crown, Star, Medal, Award, Rocket, Sparkles, Flame].map((I, i) => (
+                  <div key={i} className="aspect-square rounded-lg border border-amber-400/40 bg-amber-400/5 grid place-items-center">
+                    <I className="h-5 w-5 text-amber-500" />
+                  </div>
+                ))}
+              </div>
+              <div className="mt-3 text-xs font-semibold">Progress to next rank</div>
+              <Progress value={64} className="mt-1 h-2" />
+              <div className="mt-1 flex justify-between text-[11px] text-muted-foreground">
+                <span>Global Champion</span>
+                <span>768K / 1.2M XP</span>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
