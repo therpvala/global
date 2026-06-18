@@ -334,6 +334,26 @@ function LibraryTab() {
       <FilterBar
         chips={["All", "Active", "Draft", "Scheduled", "Archived"]}
       />
+      <div className="grid gap-3 md:grid-cols-6">
+        {[
+          { l: "Total", v: "1,284", I: Layers },
+          { l: "Active", v: "912", I: CheckCircle2 },
+          { l: "Draft", v: "186", I: Edit3 },
+          { l: "Scheduled", v: "94", I: Calendar },
+          { l: "Archived", v: "92", I: Trash2 },
+          { l: "AI-generated", v: "42", I: Bot },
+        ].map((s) => (
+          <Card key={s.l}>
+            <CardContent className="p-3">
+              <div className="flex items-center justify-between">
+                <div className="text-[11px] text-muted-foreground">{s.l}</div>
+                <s.I className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <div className="text-lg font-bold">{s.v}</div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
       <Card>
         <CardContent className="p-0">
           <Table>
@@ -346,6 +366,7 @@ function LibraryTab() {
                 <TableHead className="text-right">XP</TableHead>
                 <TableHead className="text-right">Unlocks</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead className="w-24"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -360,12 +381,79 @@ function LibraryTab() {
                   <TableCell>
                     <Badge variant={a.status === "Active" ? "default" : "outline"}>{a.status}</Badge>
                   </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <Button size="icon" variant="ghost" className="h-7 w-7"><Eye className="h-3.5 w-3.5" /></Button>
+                      <Button size="icon" variant="ghost" className="h-7 w-7"><Edit3 className="h-3.5 w-3.5" /></Button>
+                      <Button size="icon" variant="ghost" className="h-7 w-7"><Copy className="h-3.5 w-3.5" /></Button>
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="Achievement builder" desc="Define trigger · condition · reward" right={<Button size="sm"><Plus className="mr-1.5 h-3.5 w-3.5" />Save draft</Button>} />
+            <div className="mt-3 grid gap-3 md:grid-cols-2">
+              <div>
+                <div className="text-xs text-muted-foreground mb-1">Title</div>
+                <Input placeholder="e.g. Revenue Rocket — $100K MTD" className="h-8" />
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground mb-1">Category</div>
+                <Input placeholder="Revenue" className="h-8" />
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground mb-1">Trigger event</div>
+                <Input placeholder="revenue.month >= 100000" className="h-8 font-mono text-xs" />
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground mb-1">XP reward</div>
+                <Input placeholder="5000" className="h-8" />
+              </div>
+              <div className="md:col-span-2">
+                <div className="text-xs text-muted-foreground mb-1">Description</div>
+                <Input placeholder="Reach $100K monthly revenue to earn the rocket" className="h-8" />
+              </div>
+              <div className="md:col-span-2 flex flex-wrap gap-2">
+                {["Auto-issue", "Notify", "Celebrate", "AI-detect", "Repeatable"].map((t) => (
+                  <Badge key={t} variant="outline" className="text-[10px]">
+                    <CheckCircle2 className="mr-1 h-3 w-3 text-emerald-500" />{t}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="Category mix" desc="Achievements by category" />
+            <div className="mt-3 space-y-2">
+              {[
+                { c: "Revenue", n: 312, pct: 92 },
+                { c: "Sales", n: 248, pct: 76 },
+                { c: "Support", n: 184, pct: 58 },
+                { c: "Quality", n: 162, pct: 51 },
+                { c: "Retention", n: 144, pct: 46 },
+                { c: "Onboarding", n: 96, pct: 31 },
+                { c: "Recognition", n: 72, pct: 24 },
+              ].map((r) => (
+                <div key={r.c}>
+                  <div className="flex items-center justify-between text-xs">
+                    <span>{r.c}</span>
+                    <span className="tabular-nums text-muted-foreground">{r.n}</span>
+                  </div>
+                  <Progress value={r.pct} className="mt-1 h-1.5" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
