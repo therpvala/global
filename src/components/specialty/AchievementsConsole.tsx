@@ -224,9 +224,9 @@ function CommandTab() {
                 { who: "Aarav Mehta",     what: "unlocked Revenue Rocket (+5000 XP)", when: "2m ago" },
                 { who: "Wei Zhang",       what: "earned Top Developer trophy",       when: "11m ago" },
                 { who: "Sofia Rossi",     what: "ranked up to Champion",             when: "27m ago" },
-                { who: "Chloé Laurent",   what: "earned Renewal Master badge",       when: "1h ago",  tone: "good" },
-                { who: "Omar Haddad",     what: "completed Daily Challenge × 7",     when: "2h ago",  tone: "info" },
-                { who: "Isabella García", what: "redeemed 2,400 pts in Reward Store",when: "3h ago",  tone: "info" },
+                { who: "Chloé Laurent",   what: "earned Renewal Master badge",       when: "1h ago",  kind: "approve" },
+                { who: "Omar Haddad",     what: "completed Daily Challenge × 7",     when: "2h ago",  kind: "update" },
+                { who: "Isabella García", what: "redeemed 2,400 pts in Reward Store",when: "3h ago",  kind: "comment" },
               ]}
             />
           </CardContent>
@@ -815,7 +815,6 @@ function AuditTab() {
     <div className="space-y-4">
       <FilterBar
         chips={["All", "Issued", "Redeemed", "Reverted", "AI-suggested"]}
-        right={<Button size="sm" variant="outline"><Download className="mr-1.5 h-3.5 w-3.5" />Export CSV</Button>}
       />
       <Card>
         <CardContent className="p-0">
