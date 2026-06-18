@@ -1239,6 +1239,67 @@ function EngineTab() {
           </div>
         </CardContent>
       </Card>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="Notifications & channels" desc="Where players hear about wins" />
+            <div className="mt-3 space-y-2">
+              {[
+                { l: "In-app toast", I: Bell, on: true },
+                { l: "Email digest", I: Mail, on: true },
+                { l: "WhatsApp blast", I: MessageSquare, on: true },
+                { l: "Push notification", I: Smartphone, on: true },
+                { l: "Desktop banner", I: Monitor, on: false },
+                { l: "Webhooks", I: Webhook, on: true },
+              ].map((n) => (
+                <div key={n.l} className="flex items-center justify-between rounded-lg border border-border/60 p-2.5">
+                  <div className="flex items-center gap-2"><n.I className="h-4 w-4 text-primary" /><span className="text-sm">{n.l}</span></div>
+                  <Switch defaultChecked={n.on} />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="Anti-abuse & integrity" desc="Fraud detection & throttling" />
+            <div className="mt-3 space-y-2 text-sm">
+              {[
+                { l: "Rate-limit per user/hr", v: "120", I: Clock },
+                { l: "Duplicate event window", v: "10s", I: RefreshCw },
+                { l: "Geo-velocity anomaly", v: "ON", I: AlertTriangle },
+                { l: "Manual review threshold", v: "10K+ XP", I: Eye },
+                { l: "Auto-revert flagged", v: "ON", I: ShieldCheck },
+              ].map((x) => (
+                <div key={x.l} className="flex items-center justify-between rounded-lg border border-border/60 p-2.5">
+                  <div className="flex items-center gap-2"><x.I className="h-4 w-4 text-muted-foreground" /><span>{x.l}</span></div>
+                  <Badge variant="outline" className="text-[10px]">{x.v}</Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      <Card>
+        <CardContent className="p-4">
+          <SectionHeader title="API & integrations" desc="Connect AMS to external systems" right={<Button size="sm" variant="outline"><Key className="mr-1.5 h-3.5 w-3.5" />New key</Button>} />
+          <div className="mt-3 grid gap-3 md:grid-cols-3">
+            {[
+              { n: "REST API",     I: GitBranch, s: "v2.4 · 99.98% uptime" },
+              { n: "Webhooks",     I: Webhook,   s: "12 endpoints · 0 failing" },
+              { n: "Event stream", I: Database,  s: "Kafka · 4.2K msg/s" },
+              { n: "CRM sync",     I: Share2,    s: "Bi-directional" },
+              { n: "Helpdesk sync",I: ShieldCheck, s: "Tickets → XP" },
+              { n: "Billing sync", I: Coins,     s: "Revenue → XP" },
+            ].map((i) => (
+              <div key={i.n} className="rounded-xl border border-border/60 p-3">
+                <div className="flex items-center gap-2"><i.I className="h-4 w-4 text-primary" /><span className="text-sm font-semibold">{i.n}</span></div>
+                <div className="mt-1 text-[11px] text-muted-foreground">{i.s}</div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
