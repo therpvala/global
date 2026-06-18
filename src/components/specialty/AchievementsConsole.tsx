@@ -630,6 +630,70 @@ function TrophiesBadgesTab() {
           </div>
         </CardContent>
       </Card>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="Badge designer" desc="Pick shape · color · icon" right={<Button size="sm"><Plus className="mr-1.5 h-3.5 w-3.5" />Save badge</Button>} />
+            <div className="mt-3 grid grid-cols-6 gap-2">
+              {[Trophy, Medal, Crown, Star, Award, Sparkles, Flame, Zap, Heart, Rocket, ShieldCheck, Target].map((I, i) => (
+                <button key={i} className="aspect-square rounded-xl border border-border/60 grid place-items-center hover:bg-accent hover:border-primary transition-colors">
+                  <I className="h-5 w-5 text-primary" />
+                </button>
+              ))}
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {["#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4", "#10b981", "#f43f5e", "#3b82f6"].map((c) => (
+                <span key={c} className="h-7 w-7 rounded-full ring-2 ring-border" style={{ background: c }} />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="Trophy timeline" desc="Lifetime journey · most recent first" />
+            <div className="mt-3 relative pl-5 space-y-3 before:absolute before:left-1.5 before:top-1 before:bottom-1 before:w-px before:bg-border">
+              {[
+                { d: "Jun 2026", w: "Global Champion induction", I: Globe },
+                { d: "May 2026", w: "Top Reseller · APAC", I: Crown },
+                { d: "Mar 2026", w: "Legend rank achieved", I: Star },
+                { d: "Jan 2026", w: "Renewal Master ×100", I: Award },
+                { d: "Nov 2025", w: "First Million revenue", I: TrendingUp },
+              ].map((t, i) => (
+                <div key={i} className="relative">
+                  <span className="absolute -left-5 top-1.5 grid h-3 w-3 place-items-center rounded-full bg-primary ring-2 ring-background" />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <t.I className="h-4 w-4 text-amber-500" />
+                      <span className="text-sm font-medium">{t.w}</span>
+                    </div>
+                    <span className="text-[11px] text-muted-foreground">{t.d}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      <Card>
+        <CardContent className="p-4">
+          <SectionHeader title="Rarity tiers" desc="Drop rates and supply caps" />
+          <div className="mt-3 grid gap-3 md:grid-cols-5">
+            {[
+              { n: "Common", c: "text-slate-400", pct: "62%" },
+              { n: "Uncommon", c: "text-emerald-500", pct: "24%" },
+              { n: "Rare", c: "text-sky-500", pct: "9%" },
+              { n: "Epic", c: "text-violet-500", pct: "4%" },
+              { n: "Legendary", c: "text-amber-500", pct: "1%" },
+            ].map((t) => (
+              <div key={t.n} className="rounded-xl border border-border/60 p-3 text-center">
+                <Trophy className={`mx-auto h-6 w-6 ${t.c}`} />
+                <div className="mt-1 text-sm font-semibold">{t.n}</div>
+                <div className="text-[11px] text-muted-foreground">{t.pct}</div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
