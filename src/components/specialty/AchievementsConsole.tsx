@@ -1026,6 +1026,53 @@ function ChallengesTab() {
           </div>
         </CardContent>
       </Card>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="Streaks" desc="Daily login & action streaks" />
+            <div className="mt-3 space-y-2">
+              {[
+                { n: "Aarav Mehta",   d: 142, I: Flame },
+                { n: "Sofia Rossi",   d: 96,  I: Flame },
+                { n: "Wei Zhang",     d: 78,  I: Flame },
+                { n: "Chloé Laurent", d: 54,  I: Flame },
+                { n: "Omar Haddad",   d: 31,  I: Flame },
+              ].map((s) => (
+                <div key={s.n} className="flex items-center justify-between rounded-lg border border-border/60 p-2.5">
+                  <div className="flex items-center gap-2">
+                    <Avatar className="h-7 w-7"><AvatarFallback className="text-[10px]">{s.n.split(" ").map(x=>x[0]).join("")}</AvatarFallback></Avatar>
+                    <span className="text-sm font-medium">{s.n}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-sm font-bold text-rose-500">
+                    <s.I className="h-4 w-4" /> {s.d}d
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="Seasons & events" right={<Button size="sm"><Plus className="mr-1.5 h-3.5 w-3.5" />New season</Button>} />
+            <div className="mt-3 space-y-3">
+              {[
+                { n: "Summer Sprint 2026", from: "Jun 1", to: "Aug 31", pct: 38, prize: "Global Champion induction" },
+                { n: "Festival of Lights", from: "Oct 14", to: "Nov 4", pct: 0, prize: "Limited Diwali trophy" },
+                { n: "Year-End Showdown", from: "Dec 1", to: "Dec 31", pct: 0, prize: "$100K prize pool" },
+              ].map((s) => (
+                <div key={s.n} className="rounded-xl border border-border/60 p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-semibold">{s.n}</div>
+                    <Badge variant="outline" className="text-[10px]">{s.from} → {s.to}</Badge>
+                  </div>
+                  <div className="mt-1 text-[11px] text-muted-foreground">🏆 {s.prize}</div>
+                  <Progress value={s.pct} className="mt-2 h-1.5" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
