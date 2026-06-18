@@ -518,6 +518,71 @@ function XPLevelsTab() {
           <RankLadder />
         </CardContent>
       </Card>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="XP curve preview" desc="XP required per level (logarithmic)" />
+            <MiniBarChart data={[2, 3, 5, 8, 12, 18, 26, 38, 54, 72, 96, 128]} />
+            <div className="mt-2 grid grid-cols-4 gap-2 text-center text-[11px] text-muted-foreground">
+              <div>L1 · 1,250</div><div>L10 · 12.5K</div><div>L100 · 125K</div><div>L1000+ · 1.25M</div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="Level rewards" desc="Auto-granted on level up" />
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Level</TableHead>
+                  <TableHead>Reward</TableHead>
+                  <TableHead className="text-right">Value</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {[
+                  { l: 5,   r: "Bronze badge + 250 pts", v: "250" },
+                  { l: 25,  r: "Silver frame", v: "1,000" },
+                  { l: 50,  r: "Wallet credit", v: "$25" },
+                  { l: 100, r: "Gold trophy + theme pack", v: "5,000" },
+                  { l: 250, r: "Diamond rank + commission +1%", v: "—" },
+                  { l: 500, r: "Legend status + featured profile", v: "—" },
+                  { l: 1000,r: "Global Champion induction", v: "—" },
+                ].map((x) => (
+                  <TableRow key={x.l}>
+                    <TableCell className="font-bold tabular-nums">{x.l}</TableCell>
+                    <TableCell>{x.r}</TableCell>
+                    <TableCell className="text-right tabular-nums text-muted-foreground">{x.v}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+      <Card>
+        <CardContent className="p-4">
+          <SectionHeader title="XP multipliers" desc="Boost events · campaigns · weekends" right={<Button size="sm" variant="outline"><Plus className="mr-1.5 h-3.5 w-3.5" />Add boost</Button>} />
+          <div className="mt-3 grid gap-3 md:grid-cols-4">
+            {[
+              { n: "Weekend Boost", m: "x1.5", s: "Sat–Sun" },
+              { n: "Quarter-end Sprint", m: "x2.0", s: "Last 7 days" },
+              { n: "New Reseller", m: "x3.0", s: "First 30 days" },
+              { n: "Festival Event", m: "x2.5", s: "Diwali week" },
+            ].map((b) => (
+              <div key={b.n} className="rounded-xl border border-border/60 p-3 bg-gradient-to-br from-primary/5 to-transparent">
+                <div className="flex items-center justify-between">
+                  <Flame className="h-4 w-4 text-rose-500" />
+                  <Switch defaultChecked />
+                </div>
+                <div className="mt-2 text-sm font-semibold">{b.n}</div>
+                <div className="text-[11px] text-muted-foreground">{b.s}</div>
+                <div className="mt-1 text-lg font-bold tabular-nums">{b.m}</div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
