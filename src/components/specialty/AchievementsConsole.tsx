@@ -9,6 +9,9 @@ import {
   Search, Plus, Filter, Download, Upload, Settings, Bell, Volume2, VolumeX,
   Play, Pause, ChevronRight, CheckCircle2, Clock, BarChart3, Layers,
   Rocket, Globe, Palette, BookOpen, FileSignature, Coins, Lock,
+  Calendar, Mail, MessageSquare, Eye, Edit3, Copy, Trash2, RefreshCw,
+  ArrowUpRight, ArrowDownRight, Hash, Heart, ThumbsUp, Share2, GitBranch,
+  Webhook, Database, Key, AlertTriangle, Info, Smartphone, Monitor,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -221,9 +224,9 @@ function CommandTab() {
                 { who: "Aarav Mehta",     what: "unlocked Revenue Rocket (+5000 XP)", when: "2m ago" },
                 { who: "Wei Zhang",       what: "earned Top Developer trophy",       when: "11m ago" },
                 { who: "Sofia Rossi",     what: "ranked up to Champion",             when: "27m ago" },
-                { who: "Chloé Laurent",   what: "earned Renewal Master badge",       when: "1h ago",  tone: "good" },
-                { who: "Omar Haddad",     what: "completed Daily Challenge × 7",     when: "2h ago",  tone: "info" },
-                { who: "Isabella García", what: "redeemed 2,400 pts in Reward Store",when: "3h ago",  tone: "info" },
+                { who: "Chloé Laurent",   what: "earned Renewal Master badge",       when: "1h ago",  kind: "approve" },
+                { who: "Omar Haddad",     what: "completed Daily Challenge × 7",     when: "2h ago",  kind: "update" },
+                { who: "Isabella García", what: "redeemed 2,400 pts in Reward Store",when: "3h ago",  kind: "comment" },
               ]}
             />
           </CardContent>
@@ -244,6 +247,83 @@ function CommandTab() {
           </CardContent>
         </Card>
       </div>
+      <div className="grid gap-4 lg:grid-cols-4">
+        {[
+          { label: "Engagement DAU/MAU", value: "62%", delta: "+4 pts", I: Heart, color: "text-rose-500" },
+          { label: "Retention 30d",      value: "84%", delta: "+2 pts", I: ShieldCheck, color: "text-emerald-500" },
+          { label: "Champions this week",value: "9",   delta: "+3",     I: Crown, color: "text-amber-500" },
+          { label: "Avg. session lift",  value: "+18%",delta: "vs ctrl",I: TrendingUp, color: "text-sky-500" },
+        ].map((x) => (
+          <Card key={x.label}>
+            <CardContent className="p-4 flex items-center justify-between">
+              <div>
+                <div className="text-xs text-muted-foreground">{x.label}</div>
+                <div className="mt-1 text-2xl font-bold">{x.value}</div>
+                <div className="text-[11px] text-emerald-500">{x.delta}</div>
+              </div>
+              <x.I className={`h-8 w-8 ${x.color}`} />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="Top countries · 7d" />
+            <div className="mt-3 space-y-2">
+              {[
+                { c: "India",   pct: 92 },
+                { c: "USA",     pct: 81 },
+                { c: "Germany", pct: 67 },
+                { c: "Japan",   pct: 58 },
+                { c: "Brazil",  pct: 47 },
+                { c: "UAE",     pct: 41 },
+              ].map((r) => (
+                <div key={r.c}>
+                  <div className="flex items-center justify-between text-xs">
+                    <span>{r.c}</span>
+                    <span className="tabular-nums text-muted-foreground">{r.pct}%</span>
+                  </div>
+                  <Progress value={r.pct} className="mt-1 h-1.5" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="Reward velocity" desc="Issued vs redeemed" />
+            <MiniBarChart data={[12, 18, 22, 19, 28, 31, 26, 34, 38, 42, 40, 48]} />
+            <div className="mt-2 grid grid-cols-3 gap-2 text-center text-xs">
+              <div><div className="font-semibold">412</div><div className="text-muted-foreground">Issued</div></div>
+              <div><div className="font-semibold">289</div><div className="text-muted-foreground">Redeemed</div></div>
+              <div><div className="font-semibold">14</div><div className="text-muted-foreground">Reverted</div></div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="System health" />
+            <div className="mt-3 space-y-2 text-sm">
+              {[
+                { l: "AI Engine",         s: "Running",  i: Bot,      ok: true },
+                { l: "Webhook delivery",  s: "Healthy",  i: Webhook,  ok: true },
+                { l: "Notification fan-out", s: "Healthy", i: Bell,   ok: true },
+                { l: "DB replication",    s: "Lag 0.4s", i: Database, ok: true },
+                { l: "Reward queue",      s: "12 pending", i: Clock,  ok: false },
+              ].map((h) => (
+                <div key={h.l} className="flex items-center justify-between rounded-lg border border-border/60 p-2.5">
+                  <div className="flex items-center gap-2">
+                    <h.i className="h-4 w-4 text-muted-foreground" />
+                    <span>{h.l}</span>
+                  </div>
+                  <Badge variant={h.ok ? "default" : "outline"} className="text-[10px]">{h.s}</Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
@@ -254,6 +334,26 @@ function LibraryTab() {
       <FilterBar
         chips={["All", "Active", "Draft", "Scheduled", "Archived"]}
       />
+      <div className="grid gap-3 md:grid-cols-6">
+        {[
+          { l: "Total", v: "1,284", I: Layers },
+          { l: "Active", v: "912", I: CheckCircle2 },
+          { l: "Draft", v: "186", I: Edit3 },
+          { l: "Scheduled", v: "94", I: Calendar },
+          { l: "Archived", v: "92", I: Trash2 },
+          { l: "AI-generated", v: "42", I: Bot },
+        ].map((s) => (
+          <Card key={s.l}>
+            <CardContent className="p-3">
+              <div className="flex items-center justify-between">
+                <div className="text-[11px] text-muted-foreground">{s.l}</div>
+                <s.I className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <div className="text-lg font-bold">{s.v}</div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
       <Card>
         <CardContent className="p-0">
           <Table>
@@ -266,6 +366,7 @@ function LibraryTab() {
                 <TableHead className="text-right">XP</TableHead>
                 <TableHead className="text-right">Unlocks</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead className="w-24"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -280,12 +381,79 @@ function LibraryTab() {
                   <TableCell>
                     <Badge variant={a.status === "Active" ? "default" : "outline"}>{a.status}</Badge>
                   </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <Button size="icon" variant="ghost" className="h-7 w-7"><Eye className="h-3.5 w-3.5" /></Button>
+                      <Button size="icon" variant="ghost" className="h-7 w-7"><Edit3 className="h-3.5 w-3.5" /></Button>
+                      <Button size="icon" variant="ghost" className="h-7 w-7"><Copy className="h-3.5 w-3.5" /></Button>
+                    </div>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="Achievement builder" desc="Define trigger · condition · reward" right={<Button size="sm"><Plus className="mr-1.5 h-3.5 w-3.5" />Save draft</Button>} />
+            <div className="mt-3 grid gap-3 md:grid-cols-2">
+              <div>
+                <div className="text-xs text-muted-foreground mb-1">Title</div>
+                <Input placeholder="e.g. Revenue Rocket — $100K MTD" className="h-8" />
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground mb-1">Category</div>
+                <Input placeholder="Revenue" className="h-8" />
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground mb-1">Trigger event</div>
+                <Input placeholder="revenue.month >= 100000" className="h-8 font-mono text-xs" />
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground mb-1">XP reward</div>
+                <Input placeholder="5000" className="h-8" />
+              </div>
+              <div className="md:col-span-2">
+                <div className="text-xs text-muted-foreground mb-1">Description</div>
+                <Input placeholder="Reach $100K monthly revenue to earn the rocket" className="h-8" />
+              </div>
+              <div className="md:col-span-2 flex flex-wrap gap-2">
+                {["Auto-issue", "Notify", "Celebrate", "AI-detect", "Repeatable"].map((t) => (
+                  <Badge key={t} variant="outline" className="text-[10px]">
+                    <CheckCircle2 className="mr-1 h-3 w-3 text-emerald-500" />{t}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="Category mix" desc="Achievements by category" />
+            <div className="mt-3 space-y-2">
+              {[
+                { c: "Revenue", n: 312, pct: 92 },
+                { c: "Sales", n: 248, pct: 76 },
+                { c: "Support", n: 184, pct: 58 },
+                { c: "Quality", n: 162, pct: 51 },
+                { c: "Retention", n: 144, pct: 46 },
+                { c: "Onboarding", n: 96, pct: 31 },
+                { c: "Recognition", n: 72, pct: 24 },
+              ].map((r) => (
+                <div key={r.c}>
+                  <div className="flex items-center justify-between text-xs">
+                    <span>{r.c}</span>
+                    <span className="tabular-nums text-muted-foreground">{r.n}</span>
+                  </div>
+                  <Progress value={r.pct} className="mt-1 h-1.5" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
@@ -350,6 +518,71 @@ function XPLevelsTab() {
           <RankLadder />
         </CardContent>
       </Card>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="XP curve preview" desc="XP required per level (logarithmic)" />
+            <MiniBarChart data={[2, 3, 5, 8, 12, 18, 26, 38, 54, 72, 96, 128]} />
+            <div className="mt-2 grid grid-cols-4 gap-2 text-center text-[11px] text-muted-foreground">
+              <div>L1 · 1,250</div><div>L10 · 12.5K</div><div>L100 · 125K</div><div>L1000+ · 1.25M</div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="Level rewards" desc="Auto-granted on level up" />
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Level</TableHead>
+                  <TableHead>Reward</TableHead>
+                  <TableHead className="text-right">Value</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {[
+                  { l: 5,   r: "Bronze badge + 250 pts", v: "250" },
+                  { l: 25,  r: "Silver frame", v: "1,000" },
+                  { l: 50,  r: "Wallet credit", v: "$25" },
+                  { l: 100, r: "Gold trophy + theme pack", v: "5,000" },
+                  { l: 250, r: "Diamond rank + commission +1%", v: "—" },
+                  { l: 500, r: "Legend status + featured profile", v: "—" },
+                  { l: 1000,r: "Global Champion induction", v: "—" },
+                ].map((x) => (
+                  <TableRow key={x.l}>
+                    <TableCell className="font-bold tabular-nums">{x.l}</TableCell>
+                    <TableCell>{x.r}</TableCell>
+                    <TableCell className="text-right tabular-nums text-muted-foreground">{x.v}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+      <Card>
+        <CardContent className="p-4">
+          <SectionHeader title="XP multipliers" desc="Boost events · campaigns · weekends" right={<Button size="sm" variant="outline"><Plus className="mr-1.5 h-3.5 w-3.5" />Add boost</Button>} />
+          <div className="mt-3 grid gap-3 md:grid-cols-4">
+            {[
+              { n: "Weekend Boost", m: "x1.5", s: "Sat–Sun" },
+              { n: "Quarter-end Sprint", m: "x2.0", s: "Last 7 days" },
+              { n: "New Reseller", m: "x3.0", s: "First 30 days" },
+              { n: "Festival Event", m: "x2.5", s: "Diwali week" },
+            ].map((b) => (
+              <div key={b.n} className="rounded-xl border border-border/60 p-3 bg-gradient-to-br from-primary/5 to-transparent">
+                <div className="flex items-center justify-between">
+                  <Flame className="h-4 w-4 text-rose-500" />
+                  <Switch defaultChecked />
+                </div>
+                <div className="mt-2 text-sm font-semibold">{b.n}</div>
+                <div className="text-[11px] text-muted-foreground">{b.s}</div>
+                <div className="mt-1 text-lg font-bold tabular-nums">{b.m}</div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -392,6 +625,70 @@ function TrophiesBadgesTab() {
                 className="aspect-square rounded-xl border border-amber-400/40 bg-gradient-to-br from-amber-300/20 via-rose-400/10 to-violet-500/20 grid place-items-center hover:scale-105 transition-transform"
               >
                 <Trophy className="h-7 w-7 text-amber-500" />
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="Badge designer" desc="Pick shape · color · icon" right={<Button size="sm"><Plus className="mr-1.5 h-3.5 w-3.5" />Save badge</Button>} />
+            <div className="mt-3 grid grid-cols-6 gap-2">
+              {[Trophy, Medal, Crown, Star, Award, Sparkles, Flame, Zap, Heart, Rocket, ShieldCheck, Target].map((I, i) => (
+                <button key={i} className="aspect-square rounded-xl border border-border/60 grid place-items-center hover:bg-accent hover:border-primary transition-colors">
+                  <I className="h-5 w-5 text-primary" />
+                </button>
+              ))}
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {["#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4", "#10b981", "#f43f5e", "#3b82f6"].map((c) => (
+                <span key={c} className="h-7 w-7 rounded-full ring-2 ring-border" style={{ background: c }} />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="Trophy timeline" desc="Lifetime journey · most recent first" />
+            <div className="mt-3 relative pl-5 space-y-3 before:absolute before:left-1.5 before:top-1 before:bottom-1 before:w-px before:bg-border">
+              {[
+                { d: "Jun 2026", w: "Global Champion induction", I: Globe },
+                { d: "May 2026", w: "Top Reseller · APAC", I: Crown },
+                { d: "Mar 2026", w: "Legend rank achieved", I: Star },
+                { d: "Jan 2026", w: "Renewal Master ×100", I: Award },
+                { d: "Nov 2025", w: "First Million revenue", I: TrendingUp },
+              ].map((t, i) => (
+                <div key={i} className="relative">
+                  <span className="absolute -left-5 top-1.5 grid h-3 w-3 place-items-center rounded-full bg-primary ring-2 ring-background" />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <t.I className="h-4 w-4 text-amber-500" />
+                      <span className="text-sm font-medium">{t.w}</span>
+                    </div>
+                    <span className="text-[11px] text-muted-foreground">{t.d}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      <Card>
+        <CardContent className="p-4">
+          <SectionHeader title="Rarity tiers" desc="Drop rates and supply caps" />
+          <div className="mt-3 grid gap-3 md:grid-cols-5">
+            {[
+              { n: "Common", c: "text-slate-400", pct: "62%" },
+              { n: "Uncommon", c: "text-emerald-500", pct: "24%" },
+              { n: "Rare", c: "text-sky-500", pct: "9%" },
+              { n: "Epic", c: "text-violet-500", pct: "4%" },
+              { n: "Legendary", c: "text-amber-500", pct: "1%" },
+            ].map((t) => (
+              <div key={t.n} className="rounded-xl border border-border/60 p-3 text-center">
+                <Trophy className={`mx-auto h-6 w-6 ${t.c}`} />
+                <div className="mt-1 text-sm font-semibold">{t.n}</div>
+                <div className="text-[11px] text-muted-foreground">{t.pct}</div>
               </div>
             ))}
           </div>
@@ -468,6 +765,62 @@ function RewardsTab() {
           </div>
         </CardContent>
       </Card>
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardContent className="p-4">
+            <SectionHeader title="Redemption history" right={<Button size="sm" variant="outline"><Download className="mr-1.5 h-3.5 w-3.5" />Export</Button>} />
+            <Table className="mt-2">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>When</TableHead>
+                  <TableHead>User</TableHead>
+                  <TableHead>Item</TableHead>
+                  <TableHead className="text-right">Cost</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {[
+                  { t: "2m ago", u: "Aarav Mehta",    i: "Champion Frame", c: "12,000 pts", s: "Delivered" },
+                  { t: "14m ago",u: "Sofia Rossi",     i: "Wallet $50",     c: "9,500 pts",  s: "Delivered" },
+                  { t: "31m ago",u: "Wei Zhang",       i: "Theme — Noir",   c: "4,200 pts",  s: "Delivered" },
+                  { t: "1h ago", u: "Chloé Laurent",   i: "Animated Effect",c: "3,500 pts",  s: "Pending" },
+                  { t: "2h ago", u: "Omar Haddad",     i: "Premium 30d",    c: "20,000 pts", s: "Delivered" },
+                ].map((r, i) => (
+                  <TableRow key={i}>
+                    <TableCell className="text-xs text-muted-foreground">{r.t}</TableCell>
+                    <TableCell className="font-medium">{r.u}</TableCell>
+                    <TableCell>{r.i}</TableCell>
+                    <TableCell className="text-right tabular-nums">{r.c}</TableCell>
+                    <TableCell><Badge variant={r.s === "Delivered" ? "default" : "outline"}>{r.s}</Badge></TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="Wallet" desc="Player credit balance & payouts" />
+            <div className="mt-3 rounded-2xl bg-gradient-to-br from-primary to-primary/60 p-4 text-primary-foreground">
+              <div className="text-xs opacity-80">Total balance</div>
+              <div className="text-3xl font-bold tabular-nums">$48,210</div>
+              <div className="mt-1 text-[11px] opacity-80">across 18,402 wallets</div>
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-2 text-center">
+              <div className="rounded-lg border border-border/60 p-2">
+                <div className="text-[11px] text-muted-foreground">Pending</div>
+                <div className="text-base font-bold">$2,140</div>
+              </div>
+              <div className="rounded-lg border border-border/60 p-2">
+                <div className="text-[11px] text-muted-foreground">Paid 30d</div>
+                <div className="text-base font-bold">$18.9K</div>
+              </div>
+            </div>
+            <Button size="sm" className="mt-3 w-full"><Coins className="mr-1.5 h-3.5 w-3.5" />Process payouts</Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
@@ -552,6 +905,50 @@ function LeaderboardTab() {
           </CardContent>
         </Card>
       </div>
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="Podium" desc="This month" />
+            <div className="mt-4 grid grid-cols-3 items-end gap-2">
+              {[
+                { p: 2, n: "Sofia", h: "h-20", c: "bg-slate-300", i: "🥈" },
+                { p: 1, n: "Aarav", h: "h-28", c: "bg-amber-400", i: "🥇" },
+                { p: 3, n: "Liam",  h: "h-16", c: "bg-amber-700", i: "🥉" },
+              ].map((x) => (
+                <div key={x.p} className="flex flex-col items-center gap-1">
+                  <div className="text-2xl">{x.i}</div>
+                  <div className={`w-full rounded-t-lg ${x.h} ${x.c} grid place-items-center text-amber-950 font-bold`}>
+                    {x.p}
+                  </div>
+                  <div className="text-xs font-medium">{x.n}</div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="lg:col-span-2">
+          <CardContent className="p-4">
+            <SectionHeader title="Battles & rivalries" desc="Head-to-head leaderboard duels" right={<Button size="sm" variant="outline"><Plus className="mr-1.5 h-3.5 w-3.5" />New battle</Button>} />
+            <div className="mt-3 space-y-2">
+              {[
+                { a: "Mumbai West", b: "Delhi North", pct: 58, xpa: "284K", xpb: "208K" },
+                { a: "EMEA Sales",  b: "APAC Sales",  pct: 47, xpa: "612K", xpb: "688K" },
+                { a: "Vendor Cup",  b: "Reseller Cup",pct: 71, xpa: "1.2M", xpb: "498K" },
+              ].map((b) => (
+                <div key={b.a} className="rounded-xl border border-border/60 p-3">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold">{b.a} <span className="text-muted-foreground">({b.xpa})</span></span>
+                    <span className="font-semibold">{b.b} <span className="text-muted-foreground">({b.xpb})</span></span>
+                  </div>
+                  <div className="mt-1 h-2 rounded-full bg-muted overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-primary to-accent" style={{ width: `${b.pct}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
@@ -629,6 +1026,53 @@ function ChallengesTab() {
           </div>
         </CardContent>
       </Card>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="Streaks" desc="Daily login & action streaks" />
+            <div className="mt-3 space-y-2">
+              {[
+                { n: "Aarav Mehta",   d: 142, I: Flame },
+                { n: "Sofia Rossi",   d: 96,  I: Flame },
+                { n: "Wei Zhang",     d: 78,  I: Flame },
+                { n: "Chloé Laurent", d: 54,  I: Flame },
+                { n: "Omar Haddad",   d: 31,  I: Flame },
+              ].map((s) => (
+                <div key={s.n} className="flex items-center justify-between rounded-lg border border-border/60 p-2.5">
+                  <div className="flex items-center gap-2">
+                    <Avatar className="h-7 w-7"><AvatarFallback className="text-[10px]">{s.n.split(" ").map(x=>x[0]).join("")}</AvatarFallback></Avatar>
+                    <span className="text-sm font-medium">{s.n}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-sm font-bold text-rose-500">
+                    <s.I className="h-4 w-4" /> {s.d}d
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="Seasons & events" right={<Button size="sm"><Plus className="mr-1.5 h-3.5 w-3.5" />New season</Button>} />
+            <div className="mt-3 space-y-3">
+              {[
+                { n: "Summer Sprint 2026", from: "Jun 1", to: "Aug 31", pct: 38, prize: "Global Champion induction" },
+                { n: "Festival of Lights", from: "Oct 14", to: "Nov 4", pct: 0, prize: "Limited Diwali trophy" },
+                { n: "Year-End Showdown", from: "Dec 1", to: "Dec 31", pct: 0, prize: "$100K prize pool" },
+              ].map((s) => (
+                <div key={s.n} className="rounded-xl border border-border/60 p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-semibold">{s.n}</div>
+                    <Badge variant="outline" className="text-[10px]">{s.from} → {s.to}</Badge>
+                  </div>
+                  <div className="mt-1 text-[11px] text-muted-foreground">🏆 {s.prize}</div>
+                  <Progress value={s.pct} className="mt-2 h-1.5" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
@@ -689,6 +1133,44 @@ function CertificatesHallTab() {
               ))}
             </TableBody>
           </Table>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardContent className="p-4">
+          <SectionHeader title="Player profile · spotlight" desc="Aarav Mehta · Reseller · India" right={<Button size="sm" variant="outline"><Share2 className="mr-1.5 h-3.5 w-3.5" />Share</Button>} />
+          <div className="mt-3 grid gap-4 lg:grid-cols-3">
+            <div className="rounded-2xl border border-border/60 bg-gradient-to-br from-amber-400/10 via-rose-500/10 to-violet-500/10 p-4">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-14 w-14 ring-2 ring-amber-400"><AvatarFallback>AM</AvatarFallback></Avatar>
+                <div>
+                  <div className="font-semibold">Aarav Mehta</div>
+                  <div className="text-[11px] text-muted-foreground">@aarav · Mumbai</div>
+                  <Badge className="mt-1 text-[10px]"><Crown className="mr-1 h-3 w-3" /> Global Champion</Badge>
+                </div>
+              </div>
+              <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+                <div><div className="text-lg font-bold">1.28M</div><div className="text-[10px] text-muted-foreground">XP</div></div>
+                <div><div className="text-lg font-bold">L 947</div><div className="text-[10px] text-muted-foreground">Level</div></div>
+                <div><div className="text-lg font-bold">142d</div><div className="text-[10px] text-muted-foreground">Streak</div></div>
+              </div>
+            </div>
+            <div className="rounded-xl border border-border/60 p-3 lg:col-span-2">
+              <div className="text-xs font-semibold mb-2">Recent achievements</div>
+              <div className="grid grid-cols-4 gap-2">
+                {[Trophy, Crown, Star, Medal, Award, Rocket, Sparkles, Flame].map((I, i) => (
+                  <div key={i} className="aspect-square rounded-lg border border-amber-400/40 bg-amber-400/5 grid place-items-center">
+                    <I className="h-5 w-5 text-amber-500" />
+                  </div>
+                ))}
+              </div>
+              <div className="mt-3 text-xs font-semibold">Progress to next rank</div>
+              <Progress value={64} className="mt-1 h-2" />
+              <div className="mt-1 flex justify-between text-[11px] text-muted-foreground">
+                <span>Global Champion</span>
+                <span>768K / 1.2M XP</span>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
@@ -795,6 +1277,67 @@ function EngineTab() {
           </div>
         </CardContent>
       </Card>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="Notifications & channels" desc="Where players hear about wins" />
+            <div className="mt-3 space-y-2">
+              {[
+                { l: "In-app toast", I: Bell, on: true },
+                { l: "Email digest", I: Mail, on: true },
+                { l: "WhatsApp blast", I: MessageSquare, on: true },
+                { l: "Push notification", I: Smartphone, on: true },
+                { l: "Desktop banner", I: Monitor, on: false },
+                { l: "Webhooks", I: Webhook, on: true },
+              ].map((n) => (
+                <div key={n.l} className="flex items-center justify-between rounded-lg border border-border/60 p-2.5">
+                  <div className="flex items-center gap-2"><n.I className="h-4 w-4 text-primary" /><span className="text-sm">{n.l}</span></div>
+                  <Switch defaultChecked={n.on} />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="Anti-abuse & integrity" desc="Fraud detection & throttling" />
+            <div className="mt-3 space-y-2 text-sm">
+              {[
+                { l: "Rate-limit per user/hr", v: "120", I: Clock },
+                { l: "Duplicate event window", v: "10s", I: RefreshCw },
+                { l: "Geo-velocity anomaly", v: "ON", I: AlertTriangle },
+                { l: "Manual review threshold", v: "10K+ XP", I: Eye },
+                { l: "Auto-revert flagged", v: "ON", I: ShieldCheck },
+              ].map((x) => (
+                <div key={x.l} className="flex items-center justify-between rounded-lg border border-border/60 p-2.5">
+                  <div className="flex items-center gap-2"><x.I className="h-4 w-4 text-muted-foreground" /><span>{x.l}</span></div>
+                  <Badge variant="outline" className="text-[10px]">{x.v}</Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      <Card>
+        <CardContent className="p-4">
+          <SectionHeader title="API & integrations" desc="Connect AMS to external systems" right={<Button size="sm" variant="outline"><Key className="mr-1.5 h-3.5 w-3.5" />New key</Button>} />
+          <div className="mt-3 grid gap-3 md:grid-cols-3">
+            {[
+              { n: "REST API",     I: GitBranch, s: "v2.4 · 99.98% uptime" },
+              { n: "Webhooks",     I: Webhook,   s: "12 endpoints · 0 failing" },
+              { n: "Event stream", I: Database,  s: "Kafka · 4.2K msg/s" },
+              { n: "CRM sync",     I: Share2,    s: "Bi-directional" },
+              { n: "Helpdesk sync",I: ShieldCheck, s: "Tickets → XP" },
+              { n: "Billing sync", I: Coins,     s: "Revenue → XP" },
+            ].map((i) => (
+              <div key={i.n} className="rounded-xl border border-border/60 p-3">
+                <div className="flex items-center gap-2"><i.I className="h-4 w-4 text-primary" /><span className="text-sm font-semibold">{i.n}</span></div>
+                <div className="mt-1 text-[11px] text-muted-foreground">{i.s}</div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
@@ -812,7 +1355,6 @@ function AuditTab() {
     <div className="space-y-4">
       <FilterBar
         chips={["All", "Issued", "Redeemed", "Reverted", "AI-suggested"]}
-        right={<Button size="sm" variant="outline"><Download className="mr-1.5 h-3.5 w-3.5" />Export CSV</Button>}
       />
       <Card>
         <CardContent className="p-0">
