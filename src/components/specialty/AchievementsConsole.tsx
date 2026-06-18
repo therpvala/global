@@ -905,6 +905,50 @@ function LeaderboardTab() {
           </CardContent>
         </Card>
       </div>
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="Podium" desc="This month" />
+            <div className="mt-4 grid grid-cols-3 items-end gap-2">
+              {[
+                { p: 2, n: "Sofia", h: "h-20", c: "bg-slate-300", i: "🥈" },
+                { p: 1, n: "Aarav", h: "h-28", c: "bg-amber-400", i: "🥇" },
+                { p: 3, n: "Liam",  h: "h-16", c: "bg-amber-700", i: "🥉" },
+              ].map((x) => (
+                <div key={x.p} className="flex flex-col items-center gap-1">
+                  <div className="text-2xl">{x.i}</div>
+                  <div className={`w-full rounded-t-lg ${x.h} ${x.c} grid place-items-center text-amber-950 font-bold`}>
+                    {x.p}
+                  </div>
+                  <div className="text-xs font-medium">{x.n}</div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="lg:col-span-2">
+          <CardContent className="p-4">
+            <SectionHeader title="Battles & rivalries" desc="Head-to-head leaderboard duels" right={<Button size="sm" variant="outline"><Plus className="mr-1.5 h-3.5 w-3.5" />New battle</Button>} />
+            <div className="mt-3 space-y-2">
+              {[
+                { a: "Mumbai West", b: "Delhi North", pct: 58, xpa: "284K", xpb: "208K" },
+                { a: "EMEA Sales",  b: "APAC Sales",  pct: 47, xpa: "612K", xpb: "688K" },
+                { a: "Vendor Cup",  b: "Reseller Cup",pct: 71, xpa: "1.2M", xpb: "498K" },
+              ].map((b) => (
+                <div key={b.a} className="rounded-xl border border-border/60 p-3">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold">{b.a} <span className="text-muted-foreground">({b.xpa})</span></span>
+                    <span className="font-semibold">{b.b} <span className="text-muted-foreground">({b.xpb})</span></span>
+                  </div>
+                  <div className="mt-1 h-2 rounded-full bg-muted overflow-hidden">
+                    <div className="h-full bg-gradient-to-r from-primary to-accent" style={{ width: `${b.pct}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
