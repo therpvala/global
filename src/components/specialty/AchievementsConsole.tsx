@@ -247,6 +247,83 @@ function CommandTab() {
           </CardContent>
         </Card>
       </div>
+      <div className="grid gap-4 lg:grid-cols-4">
+        {[
+          { label: "Engagement DAU/MAU", value: "62%", delta: "+4 pts", I: Heart, color: "text-rose-500" },
+          { label: "Retention 30d",      value: "84%", delta: "+2 pts", I: ShieldCheck, color: "text-emerald-500" },
+          { label: "Champions this week",value: "9",   delta: "+3",     I: Crown, color: "text-amber-500" },
+          { label: "Avg. session lift",  value: "+18%",delta: "vs ctrl",I: TrendingUp, color: "text-sky-500" },
+        ].map((x) => (
+          <Card key={x.label}>
+            <CardContent className="p-4 flex items-center justify-between">
+              <div>
+                <div className="text-xs text-muted-foreground">{x.label}</div>
+                <div className="mt-1 text-2xl font-bold">{x.value}</div>
+                <div className="text-[11px] text-emerald-500">{x.delta}</div>
+              </div>
+              <x.I className={`h-8 w-8 ${x.color}`} />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="Top countries · 7d" />
+            <div className="mt-3 space-y-2">
+              {[
+                { c: "India",   pct: 92 },
+                { c: "USA",     pct: 81 },
+                { c: "Germany", pct: 67 },
+                { c: "Japan",   pct: 58 },
+                { c: "Brazil",  pct: 47 },
+                { c: "UAE",     pct: 41 },
+              ].map((r) => (
+                <div key={r.c}>
+                  <div className="flex items-center justify-between text-xs">
+                    <span>{r.c}</span>
+                    <span className="tabular-nums text-muted-foreground">{r.pct}%</span>
+                  </div>
+                  <Progress value={r.pct} className="mt-1 h-1.5" />
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="Reward velocity" desc="Issued vs redeemed" />
+            <MiniBarChart data={[12, 18, 22, 19, 28, 31, 26, 34, 38, 42, 40, 48]} />
+            <div className="mt-2 grid grid-cols-3 gap-2 text-center text-xs">
+              <div><div className="font-semibold">412</div><div className="text-muted-foreground">Issued</div></div>
+              <div><div className="font-semibold">289</div><div className="text-muted-foreground">Redeemed</div></div>
+              <div><div className="font-semibold">14</div><div className="text-muted-foreground">Reverted</div></div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <SectionHeader title="System health" />
+            <div className="mt-3 space-y-2 text-sm">
+              {[
+                { l: "AI Engine",         s: "Running",  i: Bot,      ok: true },
+                { l: "Webhook delivery",  s: "Healthy",  i: Webhook,  ok: true },
+                { l: "Notification fan-out", s: "Healthy", i: Bell,   ok: true },
+                { l: "DB replication",    s: "Lag 0.4s", i: Database, ok: true },
+                { l: "Reward queue",      s: "12 pending", i: Clock,  ok: false },
+              ].map((h) => (
+                <div key={h.l} className="flex items-center justify-between rounded-lg border border-border/60 p-2.5">
+                  <div className="flex items-center gap-2">
+                    <h.i className="h-4 w-4 text-muted-foreground" />
+                    <span>{h.l}</span>
+                  </div>
+                  <Badge variant={h.ok ? "default" : "outline"} className="text-[10px]">{h.s}</Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
