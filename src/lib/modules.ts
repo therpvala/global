@@ -7,6 +7,8 @@ import {
   User, Folder, FileCheck, Globe, Palette, Lock, KanbanSquare, Bug,
   Headphones, BookOpen, FileSignature, Brush, FileBarChart, Map,
   Smartphone, MonitorSmartphone, Wallet, Trophy, Network, Bot, Crown,
+  Server, Database, HardDrive, Cpu, GitMerge, Brain, CreditCard, Scale,
+  DollarSign, Compass, Megaphone, LifeBuoy, MapPin, Globe2, LogOut, Link2,
 } from "lucide-react";
 
 export type ModuleItem = {
@@ -96,6 +98,70 @@ export const modules: ModuleItem[] = [
   { title: "Theme", url: "/theme", icon: Palette, group: "System", desc: "Branding & theme" },
   { title: "Roles", url: "/roles", icon: ShieldCheck, group: "System", desc: "Permissions matrix" },
   { title: "Settings", url: "/settings", icon: Settings, group: "System", desc: "Full configuration" },
+
+  // Executive (role dashboards)
+  { title: "CEO Board", url: "/ceo", icon: Crown, group: "Executive", desc: "C-suite executive board" },
+  { title: "Continent Admin", url: "/continent", icon: Globe2, group: "Executive", desc: "Continent governance" },
+  { title: "Country Admin", url: "/country", icon: MapPin, group: "Executive", desc: "Country operations" },
+  { title: "Tenants", url: "/tenants", icon: Building2, group: "Executive", desc: "Multi-tenant management" },
+
+  // Infrastructure
+  { title: "Tech Admin", url: "/tech-admin", icon: Server, group: "Infrastructure", desc: "Clusters & workloads" },
+  { title: "Servers", url: "/servers", icon: Server, group: "Infrastructure", desc: "VMs & dedicated boxes" },
+  { title: "Hosting / VPS", url: "/hosting", icon: Globe, group: "Infrastructure", desc: "Subscriptions & panels" },
+  { title: "Domains & SSL", url: "/domains", icon: Globe, group: "Infrastructure", desc: "Registrar & certs" },
+  { title: "Database", url: "/database", icon: Database, group: "Infrastructure", desc: "Clusters & indexes" },
+  { title: "Infrastructure", url: "/infrastructure", icon: Cpu, group: "Infrastructure", desc: "Hosts & containers" },
+  { title: "DevOps", url: "/devops", icon: GitMerge, group: "Infrastructure", desc: "Pipelines & DORA" },
+  { title: "Observability", url: "/observability", icon: Activity, group: "Infrastructure", desc: "Logs · traces · metrics" },
+  { title: "Backup", url: "/backup", icon: HardDrive, group: "Infrastructure", desc: "Jobs & restore points" },
+
+  // Engineering
+  { title: "Product", url: "/product", icon: Compass, group: "Engineering", desc: "Insights & roadmap" },
+  { title: "QA", url: "/qa", icon: ShieldCheck, group: "Engineering", desc: "Test plans & runs" },
+  { title: "Workflows", url: "/workflows", icon: Workflow, group: "Engineering", desc: "Visual automation" },
+
+  // AI
+  { title: "AI API", url: "/ai-api", icon: Brain, group: "AI", desc: "Models · keys · safety" },
+  { title: "AI Manager", url: "/ai-manager", icon: Brain, group: "AI", desc: "Catalog & evaluations" },
+  { title: "Chatbots", url: "/chatbots", icon: Bot, group: "AI", desc: "Agents & tools" },
+
+  // Marketplace
+  { title: "Authors", url: "/authors", icon: User, group: "Marketplace", desc: "Creator hub" },
+  { title: "Author Page", url: "/author-page", icon: User, group: "Marketplace", desc: "Public storefront" },
+  { title: "Vendors", url: "/vendors", icon: Store, group: "Marketplace", desc: "Operator console" },
+  { title: "Affiliates", url: "/affiliates", icon: Link2, group: "Marketplace", desc: "Partner program" },
+  { title: "Influencers", url: "/influencers", icon: Star, group: "Marketplace", desc: "Creator marketing" },
+  { title: "Influencer Hub", url: "/influencer-dashboard", icon: Star, group: "Marketplace", desc: "Creator workspace" },
+
+  // Revenue
+  { title: "Payments", url: "/payments", icon: CreditCard, group: "Revenue", desc: "Charges & disputes" },
+  { title: "Sales & Support", url: "/sales-support", icon: Briefcase, group: "Revenue", desc: "Unified workspace" },
+  { title: "Leads", url: "/leads", icon: Target, group: "Revenue", desc: "Prospect intelligence" },
+  { title: "Marketing", url: "/marketing", icon: Megaphone, group: "Revenue", desc: "Campaigns & journeys" },
+  { title: "SEO Daily", url: "/seo-exec", icon: TrendingUp, group: "Revenue", desc: "Daily SEO ops" },
+  { title: "Content", url: "/content", icon: FileText, group: "Revenue", desc: "Spaces & pages" },
+  { title: "Live Chat", url: "/live-chat", icon: MessageSquare, group: "Revenue", desc: "Unified inbox" },
+  { title: "Reseller Hub", url: "/reseller-dashboard", icon: Handshake, group: "Revenue", desc: "Partner dashboard" },
+
+  // Back office
+  { title: "Finance", url: "/finance", icon: DollarSign, group: "Back office", desc: "Close & treasury" },
+  { title: "Legal", url: "/legal", icon: Scale, group: "Back office", desc: "Contracts & redlines" },
+  { title: "Lawyer", url: "/lawyer", icon: Scale, group: "Back office", desc: "Practice workspace" },
+  { title: "Compliance", url: "/compliance", icon: ShieldCheck, group: "Back office", desc: "Controls & evidence" },
+  { title: "Operations", url: "/operations", icon: KanbanSquare, group: "Back office", desc: "Boards & workload" },
+  { title: "Tasks", url: "/tasks", icon: KanbanSquare, group: "Back office", desc: "Personal queue" },
+  { title: "Promises", url: "/promises", icon: Clock, group: "Back office", desc: "SLA tracker" },
+  { title: "Search", url: "/search", icon: Search, group: "Back office", desc: "Indices & relevance" },
+
+  // Account
+  { title: "Pro Manager", url: "/pro-manager", icon: Crown, group: "Account", desc: "Pro program" },
+  { title: "Pro Workspace", url: "/pro-user", icon: Sparkles, group: "Account", desc: "Your Pro account" },
+  { title: "My Dashboard", url: "/basic-user", icon: User, group: "Account", desc: "Personal workspace" },
+  { title: "Portal", url: "/portal", icon: LifeBuoy, group: "Account", desc: "Customer portal" },
+  { title: "Public", url: "/public", icon: Globe, group: "Account", desc: "Public landing" },
+  { title: "Global Search", url: "/global-search", icon: Search, group: "Account", desc: "Command center" },
+  { title: "Sign out", url: "/logout", icon: LogOut, group: "Account", desc: "End session" },
 ];
 
 export const groups = Array.from(new Set(modules.map(m => m.group)));
