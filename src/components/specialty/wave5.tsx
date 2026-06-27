@@ -251,6 +251,111 @@ const spark = (n=12, b=30) => Array.from({length:n}, (_,i)=> b + Math.round(Math
 const row = (id:string,name:string,status:RecordRow["status"],owner:string,updated:string,amount?:string,tag?:string):RecordRow => ({id,name,status,owner,updated,amount,tag});
 const act = (who:string,what:string,target:string,when:string,kind:ActivityItem["kind"]="update"):ActivityItem => ({who,what,target,when,kind});
 
+/* ------------------------- Audit log primitives ------------------------ */
+type AuditEntry = {
+  id: string;
+  actor: string;
+  action: string;
+  resource: string;
+  when: string;
+  ip: string;
+  severity: "info" | "warn" | "critical";
+  detail: string;
+};
+
+const sevTone: Record<AuditEntry["severity"], string> = {
+  info: "bg-primary/15 text-primary border-primary/30",
+  warn: "bg-warning/15 text-warning border-warning/30",
+  critical: "bg-destructive/15 text-destructive border-destructive/30",
+};
+
+function buildAuditFromCfg(cfg: Cfg): AuditEntry[] {
+  const actors = cfg.activity.map((a) => a.who).concat(["system", "admin", "ops"]);
+  const targets = cfg.rows.map((r) => r.id);
+  const actions = ["login.success", "record.update", "record.create", "policy.change", "export.csv", "approval.granted"];
+  const sevs: AuditEntry["severity"][] = ["info", "info", "warn", "info", "critical", "info"];
+  return Array.from({ length: 10 }).map((_, i) => ({
+    id: `AUD-${(1000 + i).toString()}`,
+    actor: actors[i % actors.length],
+    action: actions[i % actions.length],
+    resource: targets[i % Math.max(targets.length, 1)] ?? "system",
+    when: `${i + 1}m ago`,
+    ip: `10.0.${(i * 7) % 255}.${(i * 13) % 255}`,
+    severity: sevs[i % sevs.length],
+    detail: `${actors[i % actors.length]} executed ${actions[i % actions.length]} on ${targets[i % Math.max(targets.length, 1)] ?? "system"}.`,
+  }));
+}
+
+function AuditTable({ rows, onSelect }: { rows: AuditEntry[]; onSelect: (e: AuditEntry) => void }) {
+  return (
+    <div className="rounded-xl border border-border/60 bg-card overflow-x-auto">
+      <table className="w-full text-sm min-w-[640px]">
+        <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
+          <tr>
+            <th className="text-left font-medium px-3 py-2">Time</th>
+            <th className="text-left font-medium px-3 py-2">Actor</th>
+            <th className="text-left font-medium px-3 py-2">Action</th>
+            <th className="text-left font-medium px-3 py-2">Resource</th>
+            <th className="text-left font-medium px-3 py-2">IP</th>
+            <th className="text-left font-medium px-3 py-2">Severity</th>
+            <th className="w-10" />
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border/60">
+          {rows.map((r) => (
+            <tr key={r.id} className="hover:bg-muted/30 cursor-pointer" onClick={() => onSelect(r)}>
+              <td className="px-3 py-2 text-muted-foreground tabular-nums">{r.when}</td>
+              <td className="px-3 py-2 font-medium">{r.actor}</td>
+              <td className="px-3 py-2"><code className="rounded bg-muted px-1.5 py-0.5 text-xs">{r.action}</code></td>
+              <td className="px-3 py-2">{r.resource}</td>
+              <td className="px-3 py-2 text-muted-foreground tabular-nums">{r.ip}</td>
+              <td className="px-3 py-2"><Badge variant="outline" className={sevTone[r.severity]}>{r.severity}</Badge></td>
+              <td className="px-3 py-2 text-right"><ChevronRight className="h-4 w-4 text-muted-foreground inline" /></td>
+            </tr>
+          ))}
+          {rows.length === 0 && (
+            <tr><td colSpan={7} className="px-3 py-8 text-center text-sm text-muted-foreground">No audit events match.</td></tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function AuditDrawer({ entry, onClose }: { entry: AuditEntry | null; onClose: () => void }) {
+  return (
+    <Sheet open={!!entry} onOpenChange={(o) => !o && onClose()}>
+      <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+        {entry && (
+          <>
+            <SheetHeader>
+              <SheetTitle className="flex items-center gap-2">
+                Audit event
+                <Badge variant="outline" className={sevTone[entry.severity]}>{entry.severity}</Badge>
+              </SheetTitle>
+              <SheetDescription>{entry.id} · {entry.when}</SheetDescription>
+            </SheetHeader>
+            <dl className="mt-4 space-y-3 text-sm">
+              <div className="grid grid-cols-3 gap-2"><dt className="text-muted-foreground">Actor</dt><dd className="col-span-2 font-medium">{entry.actor}</dd></div>
+              <div className="grid grid-cols-3 gap-2"><dt className="text-muted-foreground">Action</dt><dd className="col-span-2"><code className="rounded bg-muted px-1.5 py-0.5 text-xs">{entry.action}</code></dd></div>
+              <div className="grid grid-cols-3 gap-2"><dt className="text-muted-foreground">Resource</dt><dd className="col-span-2">{entry.resource}</dd></div>
+              <div className="grid grid-cols-3 gap-2"><dt className="text-muted-foreground">IP</dt><dd className="col-span-2 tabular-nums">{entry.ip}</dd></div>
+              <div className="pt-2">
+                <div className="text-xs uppercase tracking-wider text-muted-foreground">Detail</div>
+                <p className="mt-1 rounded-md border border-border/60 bg-muted/30 p-3 text-sm">{entry.detail}</p>
+              </div>
+              <div className="flex gap-2 pt-2">
+                <Button size="sm" variant="outline">Open record</Button>
+                <Button size="sm" variant="outline">Export</Button>
+              </div>
+            </dl>
+          </>
+        )}
+      </SheetContent>
+    </Sheet>
+  );
+}
+
 
 export function CEOConsole() {
   const StatusListNode = <StatusList title="Status overview" items={[
