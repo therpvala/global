@@ -12,7 +12,7 @@
  * Monday, ClickUp, Jira SM, Elastic, Vercel, LinkedIn, Zendesk, Arc,
  * Raycast, Slack.
  */
-import { type ComponentType, type ReactNode } from "react";
+import { type ComponentType, type ReactNode, useMemo, useState } from "react";
 import {
   Activity, AlertTriangle, BarChart3, Bell, Bot, Box, Brain, Briefcase,
   Building2, Check, ChevronRight, Clock, Code2, Compass, Cpu, CreditCard,
@@ -31,6 +31,9 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription,
+} from "@/components/ui/sheet";
+import {
   ActivityFeed, FilterBar, KpiStrip, MiniBarChart, QuickActions,
   RecordsTable, SectionHeader, type ActivityItem, type Kpi, type RecordRow,
 } from "../enterprise";
@@ -42,18 +45,18 @@ function Hero({ eyebrow, title, subtitle, actions }: {
   return (
     <div className="rounded-2xl border border-border/60 overflow-hidden">
       <div className="px-5 py-5 text-primary-foreground" style={{ backgroundImage: "var(--gradient-primary)" }}>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
+        <div className="grid grid-cols-[minmax(0,1fr)] gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+          <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               {eyebrow.map((e) => { const I = e.icon; return (
-                <Badge key={e.text} variant="secondary" className="font-normal"><I className="mr-1 h-3 w-3" />{e.text}</Badge>
+                <Badge key={e.text} variant="secondary" className="font-normal shrink-0"><I className="mr-1 h-3 w-3" />{e.text}</Badge>
               ); })}
             </div>
-            <h1 className="mt-1.5 text-2xl font-bold">{title}</h1>
-            <p className="text-sm opacity-90 max-w-2xl">{subtitle}</p>
+            <h1 className="mt-1.5 text-xl sm:text-2xl font-bold truncate">{title}</h1>
+            <p className="text-xs sm:text-sm opacity-90 max-w-2xl">{subtitle}</p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="relative w-60">
+          <div className="flex flex-wrap items-center gap-2 md:justify-end">
+            <div className="relative w-full sm:w-60">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/70" />
               <Input placeholder="Search…" className="h-9 pl-9 bg-white/15 border-white/20 placeholder:text-white/70 text-white" />
             </div>
@@ -158,20 +161,34 @@ type Cfg = {
 };
 
 function RoleConsole({ cfg }: { cfg: Cfg }) {
+  const auditRows = useMemo(() => buildAuditFromCfg(cfg), [cfg]);
+  const [auditFilter, setAuditFilter] = useState("");
+  const [selected, setSelected] = useState<AuditEntry | null>(null);
+  const filteredAudit = useMemo(() => {
+    const n = auditFilter.trim().toLowerCase();
+    if (!n) return auditRows;
+    return auditRows.filter((r) =>
+      [r.actor, r.action, r.resource, r.severity, r.ip].some((v) =>
+        v.toLowerCase().includes(n),
+      ),
+    );
+  }, [auditRows, auditFilter]);
   return (
     <Shell>
       <Hero eyebrow={cfg.eyebrow} title={cfg.title} subtitle={cfg.subtitle} actions={cfg.heroActions} />
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="bg-card border border-border/60">
+        <TabsList className="bg-card border border-border/60 flex w-full overflow-x-auto md:w-auto md:inline-flex">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="records">Records</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="activity">Activity</TabsTrigger>
+          <TabsTrigger value="audit">Audit log</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="mt-4 space-y-4">
           <KpiStrip kpis={cfg.kpis} />
           <QuickActions actions={cfg.actions} />
-          <div className="grid lg:grid-cols-3 gap-3">
-            <div className="lg:col-span-2 space-y-3">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+            <div className="lg:col-span-2 space-y-3 min-w-0">
               <SectionHeader title="Records" desc="Filter, group, and act on the live dataset." />
               <FilterBar chips={cfg.chips} />
               <RecordsTable rows={cfg.rows} />
@@ -182,7 +199,7 @@ function RoleConsole({ cfg }: { cfg: Cfg }) {
             </div>
           </div>
           {cfg.panels.length > 2 && (
-            <div className="grid md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {cfg.panels.slice(2).map((p) => (<div key={p.title}>{p.node}</div>))}
             </div>
           )}
@@ -193,9 +210,37 @@ function RoleConsole({ cfg }: { cfg: Cfg }) {
         </TabsContent>
         <TabsContent value="analytics" className="mt-4 space-y-3">
           <KpiStrip kpis={cfg.kpis} />
-          <div className="grid md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {cfg.panels.map((p) => (<div key={p.title}>{p.node}</div>))}
           </div>
+        </TabsContent>
+        <TabsContent value="activity" className="mt-4 space-y-3">
+          <SectionHeader title="Live activity" desc="Stream of recent events across this module." />
+          <ActivityFeed items={[...cfg.activity, ...cfg.activity.map(a => ({...a, when: "earlier"}))]} />
+        </TabsContent>
+        <TabsContent value="audit" className="mt-4 space-y-3">
+          <SectionHeader title="Audit log" desc="Immutable trail of who did what, when, and from where." />
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <div className="relative flex-1">
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={auditFilter}
+                onChange={(e) => setAuditFilter(e.target.value)}
+                placeholder="Search actor, action, resource, IP…"
+                className="h-9 pl-8"
+              />
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {["Severity","Actor","Resource","Date"].map((c) => (
+                <Badge key={c} variant="outline" className="h-7 cursor-pointer border-dashed font-normal hover:bg-accent">
+                  {c}
+                </Badge>
+              ))}
+              <Button size="sm" variant="outline" className="h-7">Export</Button>
+            </div>
+          </div>
+          <AuditTable rows={filteredAudit} onSelect={setSelected} />
+          <AuditDrawer entry={selected} onClose={() => setSelected(null)} />
         </TabsContent>
       </Tabs>
     </Shell>
@@ -205,6 +250,111 @@ function RoleConsole({ cfg }: { cfg: Cfg }) {
 const spark = (n=12, b=30) => Array.from({length:n}, (_,i)=> b + Math.round(Math.sin(i/1.7)*12 + i*1.4));
 const row = (id:string,name:string,status:RecordRow["status"],owner:string,updated:string,amount?:string,tag?:string):RecordRow => ({id,name,status,owner,updated,amount,tag});
 const act = (who:string,what:string,target:string,when:string,kind:ActivityItem["kind"]="update"):ActivityItem => ({who,what,target,when,kind});
+
+/* ------------------------- Audit log primitives ------------------------ */
+type AuditEntry = {
+  id: string;
+  actor: string;
+  action: string;
+  resource: string;
+  when: string;
+  ip: string;
+  severity: "info" | "warn" | "critical";
+  detail: string;
+};
+
+const sevTone: Record<AuditEntry["severity"], string> = {
+  info: "bg-primary/15 text-primary border-primary/30",
+  warn: "bg-warning/15 text-warning border-warning/30",
+  critical: "bg-destructive/15 text-destructive border-destructive/30",
+};
+
+function buildAuditFromCfg(cfg: Cfg): AuditEntry[] {
+  const actors = cfg.activity.map((a) => a.who).concat(["system", "admin", "ops"]);
+  const targets = cfg.rows.map((r) => r.id);
+  const actions = ["login.success", "record.update", "record.create", "policy.change", "export.csv", "approval.granted"];
+  const sevs: AuditEntry["severity"][] = ["info", "info", "warn", "info", "critical", "info"];
+  return Array.from({ length: 10 }).map((_, i) => ({
+    id: `AUD-${(1000 + i).toString()}`,
+    actor: actors[i % actors.length],
+    action: actions[i % actions.length],
+    resource: targets[i % Math.max(targets.length, 1)] ?? "system",
+    when: `${i + 1}m ago`,
+    ip: `10.0.${(i * 7) % 255}.${(i * 13) % 255}`,
+    severity: sevs[i % sevs.length],
+    detail: `${actors[i % actors.length]} executed ${actions[i % actions.length]} on ${targets[i % Math.max(targets.length, 1)] ?? "system"}.`,
+  }));
+}
+
+function AuditTable({ rows, onSelect }: { rows: AuditEntry[]; onSelect: (e: AuditEntry) => void }) {
+  return (
+    <div className="rounded-xl border border-border/60 bg-card overflow-x-auto">
+      <table className="w-full text-sm min-w-[640px]">
+        <thead className="bg-muted/40 text-xs uppercase tracking-wider text-muted-foreground">
+          <tr>
+            <th className="text-left font-medium px-3 py-2">Time</th>
+            <th className="text-left font-medium px-3 py-2">Actor</th>
+            <th className="text-left font-medium px-3 py-2">Action</th>
+            <th className="text-left font-medium px-3 py-2">Resource</th>
+            <th className="text-left font-medium px-3 py-2">IP</th>
+            <th className="text-left font-medium px-3 py-2">Severity</th>
+            <th className="w-10" />
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border/60">
+          {rows.map((r) => (
+            <tr key={r.id} className="hover:bg-muted/30 cursor-pointer" onClick={() => onSelect(r)}>
+              <td className="px-3 py-2 text-muted-foreground tabular-nums">{r.when}</td>
+              <td className="px-3 py-2 font-medium">{r.actor}</td>
+              <td className="px-3 py-2"><code className="rounded bg-muted px-1.5 py-0.5 text-xs">{r.action}</code></td>
+              <td className="px-3 py-2">{r.resource}</td>
+              <td className="px-3 py-2 text-muted-foreground tabular-nums">{r.ip}</td>
+              <td className="px-3 py-2"><Badge variant="outline" className={sevTone[r.severity]}>{r.severity}</Badge></td>
+              <td className="px-3 py-2 text-right"><ChevronRight className="h-4 w-4 text-muted-foreground inline" /></td>
+            </tr>
+          ))}
+          {rows.length === 0 && (
+            <tr><td colSpan={7} className="px-3 py-8 text-center text-sm text-muted-foreground">No audit events match.</td></tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function AuditDrawer({ entry, onClose }: { entry: AuditEntry | null; onClose: () => void }) {
+  return (
+    <Sheet open={!!entry} onOpenChange={(o) => !o && onClose()}>
+      <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+        {entry && (
+          <>
+            <SheetHeader>
+              <SheetTitle className="flex items-center gap-2">
+                Audit event
+                <Badge variant="outline" className={sevTone[entry.severity]}>{entry.severity}</Badge>
+              </SheetTitle>
+              <SheetDescription>{entry.id} · {entry.when}</SheetDescription>
+            </SheetHeader>
+            <dl className="mt-4 space-y-3 text-sm">
+              <div className="grid grid-cols-3 gap-2"><dt className="text-muted-foreground">Actor</dt><dd className="col-span-2 font-medium">{entry.actor}</dd></div>
+              <div className="grid grid-cols-3 gap-2"><dt className="text-muted-foreground">Action</dt><dd className="col-span-2"><code className="rounded bg-muted px-1.5 py-0.5 text-xs">{entry.action}</code></dd></div>
+              <div className="grid grid-cols-3 gap-2"><dt className="text-muted-foreground">Resource</dt><dd className="col-span-2">{entry.resource}</dd></div>
+              <div className="grid grid-cols-3 gap-2"><dt className="text-muted-foreground">IP</dt><dd className="col-span-2 tabular-nums">{entry.ip}</dd></div>
+              <div className="pt-2">
+                <div className="text-xs uppercase tracking-wider text-muted-foreground">Detail</div>
+                <p className="mt-1 rounded-md border border-border/60 bg-muted/30 p-3 text-sm">{entry.detail}</p>
+              </div>
+              <div className="flex gap-2 pt-2">
+                <Button size="sm" variant="outline">Open record</Button>
+                <Button size="sm" variant="outline">Export</Button>
+              </div>
+            </dl>
+          </>
+        )}
+      </SheetContent>
+    </Sheet>
+  );
+}
 
 
 export function CEOConsole() {
