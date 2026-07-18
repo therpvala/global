@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { AuthProvider } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import { Toaster } from "@/components/ui/sonner";
+import { CartProvider } from "@/hooks/use-cart";
 
 function NotFoundComponent() {
   return (
@@ -76,14 +77,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "SaaS Vala — Enterprise Operating System" },
+      { name: "description", content: "Premium enterprise ecosystem: marketplace, dashboards and operating consoles for every role." },
+      { name: "author", content: "SaaS Vala" },
+      { property: "og:title", content: "SaaS Vala — Enterprise Operating System" },
+      { property: "og:description", content: "Premium enterprise ecosystem: marketplace, dashboards and operating consoles for every role." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {
@@ -115,13 +115,16 @@ function RootShell({ children }: { children: React.ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isBare = pathname === "/login";
+  // "/" (public home) and "/login" render outside the app shell.
+  const isBare = pathname === "/login" || pathname === "/";
 
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        {isBare ? <Outlet /> : <AppShell><Outlet /></AppShell>}
-        <Toaster />
+        <CartProvider>
+          {isBare ? <Outlet /> : <AppShell><Outlet /></AppShell>}
+          <Toaster />
+        </CartProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
