@@ -1,4 +1,15 @@
-// UI-only stub — no auth backend wired.
+// Adapter over the real AuthContext (src/lib/auth) so imported market
+// components can keep using `@/hooks/use-auth` unchanged.
+import { useAuth as useRealAuth } from "@/lib/auth";
+
 export function useAuth() {
-  return { session: null, user: null, loading: false, signOut: async () => {} };
+  const a = useRealAuth();
+  return {
+    session: a.isAuthenticated ? { user: a.user } : null,
+    user: a.user,
+    loading: false,
+    signOut: async () => {
+      await a.logout();
+    },
+  };
 }
