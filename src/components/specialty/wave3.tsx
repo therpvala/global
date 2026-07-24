@@ -611,13 +611,60 @@ export function AuditConsole() {
    ========================================================= */
 export function RolesConsole() {
   const roles = [
-    { r: "Super Admin", users: 3, perms: 184, scope: "Global" },
-    { r: "Admin", users: 12, perms: 142, scope: "Workspace" },
-    { r: "Manager", users: 48, perms: 84, scope: "Team" },
-    { r: "Account Manager", users: 22, perms: 56, scope: "Customer" },
-    { r: "Accountant", users: 8, perms: 38, scope: "Finance" },
-    { r: "Support Agent", users: 31, perms: 24, scope: "Support" },
-    { r: "Read-only", users: 64, perms: 12, scope: "Reports" },
+    { r: "Super Admin", users: 3, perms: 184, scope: "Global", type: "System", risk: "Critical", updated: "2d" },
+    { r: "Admin", users: 12, perms: 142, scope: "Workspace", type: "System", risk: "High", updated: "5d" },
+    { r: "Manager", users: 48, perms: 84, scope: "Team", type: "Custom", risk: "Medium", updated: "1w" },
+    { r: "Account Manager", users: 22, perms: 56, scope: "Customer", type: "Custom", risk: "Medium", updated: "2w" },
+    { r: "Accountant", users: 8, perms: 38, scope: "Finance", type: "Custom", risk: "High", updated: "3d" },
+    { r: "Support Agent", users: 31, perms: 24, scope: "Support", type: "Custom", risk: "Low", updated: "1d" },
+    { r: "Read-only", users: 64, perms: 12, scope: "Reports", type: "System", risk: "Low", updated: "1mo" },
+  ];
+  const permCatalog = [
+    { cat: "Billing", perms: ["invoices.read","invoices.write","refunds.issue","payouts.manage"], sensitive: 2 },
+    { cat: "CRM", perms: ["leads.read","leads.write","deals.close","contacts.export"], sensitive: 1 },
+    { cat: "HR", perms: ["employees.read","payroll.run","offers.send","terminate"], sensitive: 3 },
+    { cat: "Platform", perms: ["users.invite","roles.assign","api-keys.create","audit.read"], sensitive: 4 },
+    { cat: "Data", perms: ["reports.read","reports.export","warehouse.query","pii.unmask"], sensitive: 2 },
+  ];
+  const assignments: RecordRow[] = [
+    { id: "U-8821", name: "Ava Chen", status: "active", owner: "Admin · Manager", updated: "just now", tag: "SSO" },
+    { id: "U-8809", name: "Marcus Hill", status: "active", owner: "Account Manager", updated: "12m", tag: "SSO+MFA" },
+    { id: "U-8790", name: "Priya Shah", status: "review", owner: "Accountant", updated: "1h", tag: "MFA" },
+    { id: "U-8712", name: "Diego Alvarez", status: "active", owner: "Support Agent", updated: "3h", tag: "SSO" },
+    { id: "U-8688", name: "Yui Nakamura", status: "pending", owner: "Manager", updated: "1d", tag: "Pending MFA" },
+  ];
+  const requests: RecordRow[] = [
+    { id: "REQ-4421", name: "Elevate to Finance Admin", status: "pending", owner: "Priya Shah", updated: "18m", tag: "Justified" },
+    { id: "REQ-4420", name: "Grant warehouse.query", status: "pending", owner: "Ravi Kumar", updated: "42m", tag: "SoD check" },
+    { id: "REQ-4418", name: "Add to Support Agent", status: "active", owner: "Nia Adeyemi", updated: "2h", tag: "Auto-approved" },
+    { id: "REQ-4415", name: "Emergency break-glass", status: "review", owner: "Ops · On-call", updated: "5h", tag: "Time-bound 4h" },
+  ];
+  const reviews = [
+    { name: "Q4 Finance access review", scope: "Accountant + Admin", progress: 72, due: "in 6 days", reviewer: "CFO office" },
+    { name: "Contractor quarterly", scope: "External · 42 users", progress: 34, due: "in 12 days", reviewer: "People ops" },
+    { name: "Privileged access", scope: "Super Admin + break-glass", progress: 100, due: "closed", reviewer: "Security" },
+    { name: "PII unmask certification", scope: "Data · 18 users", progress: 58, due: "in 3 days", reviewer: "DPO" },
+  ];
+  const policies = [
+    { p: "MFA required for elevated roles", type: "Condition", roles: "Admin, Super Admin, Finance", state: "Enforced" },
+    { p: "IP allowlist · corporate + VPN", type: "Network", roles: "All roles", state: "Enforced" },
+    { p: "Device posture · managed only", type: "Device", roles: "Super Admin", state: "Enforced" },
+    { p: "Just-in-time · 4h max", type: "JIT", roles: "Break-glass", state: "Enforced" },
+    { p: "Approval chain · 2-person rule", type: "Workflow", roles: "Refunds > $5k", state: "Enforced" },
+    { p: "Session lifetime · 8h", type: "Session", roles: "All roles", state: "Enforced" },
+  ];
+  const sod = [
+    { pair: "Vendor create ↔ Payment approve", users: 2, severity: "High" },
+    { pair: "Journal post ↔ Journal approve", users: 1, severity: "Critical" },
+    { pair: "User invite ↔ Role assign", users: 4, severity: "Medium" },
+    { pair: "Refund issue ↔ Refund approve", users: 0, severity: "Low" },
+  ];
+  const audit: ActivityItem[] = [
+    { who: "Ava Chen", what: "assigned", target: "Manager → Marcus Hill", when: "3m", kind: "approve" },
+    { who: "System", what: "expired JIT", target: "Break-glass · Ops", when: "22m", kind: "update" },
+    { who: "Priya Shah", what: "requested", target: "Finance Admin", when: "1h", kind: "create" },
+    { who: "CFO office", what: "certified", target: "Q3 access review", when: "yesterday", kind: "approve" },
+    { who: "Security", what: "revoked", target: "warehouse.query · U-8503", when: "2d", kind: "reject" },
   ];
   return (
     <Shell>
@@ -625,7 +672,7 @@ export function RolesConsole() {
         eyebrow={[{ icon: ShieldCheck, text: "Identity governance" }]}
         title="Roles & permissions"
         subtitle="Define, assign and audit every role across the platform with least-privilege defaults."
-        actions={[{ label: "New role", icon: Plus }, { label: "Access review", icon: ClipboardList }]}
+        actions={[{ label: "New role", icon: Plus }, { label: "Access review", icon: ClipboardList }, { label: "Import from IdP", icon: Download }]}
       />
       <KpiStrip kpis={[
         { label: "Roles", value: "18", delta: "+2", tone: "up" },
@@ -633,23 +680,333 @@ export function RolesConsole() {
         { label: "Pending access requests", value: "9", delta: "SLA ok", tone: "neutral" },
         { label: "Last access review", value: "12 days", delta: "On schedule", tone: "up" },
       ]} />
-      <Card><CardContent className="p-4 space-y-3">
-        <SectionHeader title="Roles matrix" />
-        <Table>
-          <TableHeader><TableRow className="bg-muted/40 hover:bg-muted/40"><TableHead>Role</TableHead><TableHead>Users</TableHead><TableHead>Permissions</TableHead><TableHead>Scope</TableHead><TableHead /></TableRow></TableHeader>
-          <TableBody>
-            {roles.map((r) => (
-              <TableRow key={r.r}>
-                <TableCell className="font-medium">{r.r}</TableCell>
-                <TableCell>{r.users}</TableCell>
-                <TableCell><Progress value={(r.perms / 184) * 100} className="h-1.5 w-32" /><span className="text-[11px] text-muted-foreground">{r.perms} granted</span></TableCell>
-                <TableCell><Badge variant="outline" className="font-normal">{r.scope}</Badge></TableCell>
-                <TableCell className="text-right"><Button size="sm" variant="ghost">Edit</Button></TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent></Card>
+      <Tabs defaultValue="roles" className="space-y-3">
+        <TabsList className="flex flex-wrap h-auto">
+          <TabsTrigger value="roles">Roles</TabsTrigger>
+          <TabsTrigger value="permissions">Permissions</TabsTrigger>
+          <TabsTrigger value="assignments">Assignments</TabsTrigger>
+          <TabsTrigger value="requests">Access requests</TabsTrigger>
+          <TabsTrigger value="reviews">Certifications</TabsTrigger>
+          <TabsTrigger value="policies">Policies</TabsTrigger>
+          <TabsTrigger value="sod">SoD conflicts</TabsTrigger>
+          <TabsTrigger value="delegation">Delegation</TabsTrigger>
+          <TabsTrigger value="audit">Audit</TabsTrigger>
+          <TabsTrigger value="api">API & SCIM</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="roles" className="space-y-3">
+          <Card><CardContent className="p-4 space-y-3">
+            <SectionHeader title="Roles matrix" right={<FilterBar />} />
+            <Table>
+              <TableHeader><TableRow className="bg-muted/40 hover:bg-muted/40">
+                <TableHead>Role</TableHead><TableHead>Type</TableHead><TableHead>Users</TableHead>
+                <TableHead>Permissions</TableHead><TableHead>Scope</TableHead><TableHead>Risk</TableHead>
+                <TableHead>Updated</TableHead><TableHead />
+              </TableRow></TableHeader>
+              <TableBody>
+                {roles.map((r) => (
+                  <TableRow key={r.r}>
+                    <TableCell className="font-medium">{r.r}</TableCell>
+                    <TableCell><Badge variant="outline" className="font-normal">{r.type}</Badge></TableCell>
+                    <TableCell>{r.users}</TableCell>
+                    <TableCell><Progress value={(r.perms / 184) * 100} className="h-1.5 w-32" /><span className="text-[11px] text-muted-foreground">{r.perms} granted</span></TableCell>
+                    <TableCell><Badge variant="outline" className="font-normal">{r.scope}</Badge></TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={
+                        "font-normal " + (r.risk === "Critical" ? "text-destructive border-destructive/40"
+                          : r.risk === "High" ? "text-warning border-warning/40"
+                          : r.risk === "Medium" ? "text-primary border-primary/40"
+                          : "text-muted-foreground")
+                      }>{r.risk}</Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-xs">{r.updated}</TableCell>
+                    <TableCell className="text-right">
+                      <Button size="sm" variant="ghost">Edit</Button>
+                      <Button size="sm" variant="ghost">Clone</Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent></Card>
+          <div className="grid md:grid-cols-3 gap-3">
+            <Card><CardContent className="p-4">
+              <SectionHeader title="Role hierarchy" />
+              <ul className="mt-2 text-sm space-y-1.5">
+                <li className="flex items-center gap-2"><Shield className="h-3.5 w-3.5" /> Super Admin</li>
+                <li className="pl-5 flex items-center gap-2"><ChevronRight className="h-3 w-3" /> Admin</li>
+                <li className="pl-10 flex items-center gap-2"><ChevronRight className="h-3 w-3" /> Manager</li>
+                <li className="pl-14 flex items-center gap-2"><ChevronRight className="h-3 w-3" /> Support Agent</li>
+                <li className="pl-10 flex items-center gap-2"><ChevronRight className="h-3 w-3" /> Accountant</li>
+                <li className="pl-10 flex items-center gap-2"><ChevronRight className="h-3 w-3" /> Account Manager</li>
+              </ul>
+            </CardContent></Card>
+            <Card><CardContent className="p-4">
+              <SectionHeader title="New role" />
+              <div className="mt-2 space-y-2 text-sm">
+                <Input placeholder="Role name" className="h-9" />
+                <Input placeholder="Description" className="h-9" />
+                <div className="grid grid-cols-2 gap-2">
+                  <Input placeholder="Scope" defaultValue="Workspace" className="h-9" />
+                  <Input placeholder="Base role" defaultValue="Read-only" className="h-9" />
+                </div>
+                <Button className="w-full"><Plus className="h-3.5 w-3.5 mr-1" />Create role</Button>
+              </div>
+            </CardContent></Card>
+            <Card><CardContent className="p-4">
+              <SectionHeader title="Coverage" />
+              <MiniBarChart data={[12,18,24,22,30,28,34]} labels={["W1","W2","W3","W4","W5","W6","W7"]} />
+              <div className="mt-2 text-xs text-muted-foreground">Role assignments per week · trending up</div>
+            </CardContent></Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="permissions" className="space-y-3">
+          <Card><CardContent className="p-4 space-y-3">
+            <SectionHeader title="Permission catalog" right={<Button size="sm" variant="outline"><Plus className="h-3.5 w-3.5 mr-1" />New permission</Button>} />
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {permCatalog.map((c) => (
+                <div key={c.cat} className="rounded-lg border border-border/60 p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="font-semibold flex items-center gap-2"><Key className="h-3.5 w-3.5" />{c.cat}</div>
+                    <Badge variant="outline" className="font-normal text-warning border-warning/40">{c.sensitive} sensitive</Badge>
+                  </div>
+                  <ul className="mt-2 space-y-1 text-xs">
+                    {c.perms.map((p) => (
+                      <li key={p} className="flex items-center justify-between rounded border border-border/60 px-2 py-1">
+                        <span className="font-mono">{p}</span>
+                        <BadgeCheck className="h-3 w-3 text-success" />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </CardContent></Card>
+          <Card><CardContent className="p-4 space-y-3">
+            <SectionHeader title="Role × Permission matrix" />
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader><TableRow className="bg-muted/40 hover:bg-muted/40">
+                  <TableHead>Permission</TableHead>
+                  {roles.slice(0,5).map((r) => <TableHead key={r.r} className="text-center">{r.r}</TableHead>)}
+                </TableRow></TableHeader>
+                <TableBody>
+                  {["invoices.write","refunds.issue","payroll.run","api-keys.create","pii.unmask","reports.export"].map((p, i) => (
+                    <TableRow key={p}>
+                      <TableCell className="font-mono text-xs">{p}</TableCell>
+                      {roles.slice(0,5).map((r, j) => (
+                        <TableCell key={r.r} className="text-center">
+                          {(i + j) % 3 === 0 ? <Check className="h-3.5 w-3.5 text-success inline" /> : <span className="text-muted-foreground">—</span>}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent></Card>
+        </TabsContent>
+
+        <TabsContent value="assignments" className="space-y-3">
+          <Card><CardContent className="p-4 space-y-3">
+            <SectionHeader title="User assignments" right={<div className="flex gap-2"><FilterBar /><Button size="sm" variant="outline"><Plus className="h-3.5 w-3.5 mr-1" />Assign</Button></div>} />
+            <RecordsTable rows={assignments} />
+          </CardContent></Card>
+          <div className="grid md:grid-cols-2 gap-3">
+            <Card><CardContent className="p-4">
+              <SectionHeader title="Groups → roles mapping" />
+              <ul className="mt-2 divide-y divide-border/60 text-sm">
+                {[
+                  { g: "eng-platform", r: "Admin", n: 12 },
+                  { g: "finance-core", r: "Accountant", n: 8 },
+                  { g: "sales-emea", r: "Account Manager", n: 14 },
+                  { g: "support-t1", r: "Support Agent", n: 22 },
+                ].map((x) => (
+                  <li key={x.g} className="flex items-center justify-between py-2">
+                    <span className="font-mono text-xs">{x.g}</span>
+                    <span className="text-xs text-muted-foreground">→ {x.r} · {x.n} users</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent></Card>
+            <Card><CardContent className="p-4">
+              <SectionHeader title="Bulk actions" />
+              <div className="mt-2 space-y-2">
+                <Button variant="outline" className="w-full justify-start"><Users className="h-3.5 w-3.5 mr-2" />Bulk assign role</Button>
+                <Button variant="outline" className="w-full justify-start"><UserCheck className="h-3.5 w-3.5 mr-2" />Bulk revoke role</Button>
+                <Button variant="outline" className="w-full justify-start"><Download className="h-3.5 w-3.5 mr-2" />Export assignments (CSV)</Button>
+                <Button variant="outline" className="w-full justify-start"><Repeat className="h-3.5 w-3.5 mr-2" />Sync from IdP now</Button>
+              </div>
+            </CardContent></Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="requests" className="space-y-3">
+          <Card><CardContent className="p-4 space-y-3">
+            <SectionHeader title="Pending access requests" right={<Button size="sm" variant="outline"><ClipboardList className="h-3.5 w-3.5 mr-1" />My queue</Button>} />
+            <RecordsTable rows={requests} />
+          </CardContent></Card>
+          <div className="grid md:grid-cols-3 gap-3">
+            <Card><CardContent className="p-4"><SectionHeader title="SLA" />
+              <div className="mt-2 text-2xl font-bold">4h 12m</div>
+              <div className="text-xs text-muted-foreground">Avg time to approve · target 8h</div>
+              <Progress value={72} className="mt-2 h-1.5" />
+            </CardContent></Card>
+            <Card><CardContent className="p-4"><SectionHeader title="Auto-approval rules" />
+              <ul className="mt-2 text-xs space-y-1">
+                <li className="flex items-center gap-2"><Zap className="h-3 w-3 text-warning" />Same team + Read-only → auto</li>
+                <li className="flex items-center gap-2"><Zap className="h-3 w-3 text-warning" />Support role during on-call → auto</li>
+                <li className="flex items-center gap-2"><Zap className="h-3 w-3 text-warning" />Time-bound &lt; 2h → auto with MFA</li>
+              </ul>
+            </CardContent></Card>
+            <Card><CardContent className="p-4"><SectionHeader title="Break-glass" />
+              <div className="mt-2 text-xs text-muted-foreground">Emergency elevation with mandatory review.</div>
+              <Button className="mt-2 w-full" variant="outline"><ShieldAlert className="h-3.5 w-3.5 mr-1" />Request break-glass</Button>
+            </CardContent></Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="reviews" className="space-y-3">
+          <Card><CardContent className="p-4 space-y-3">
+            <SectionHeader title="Access certifications" right={<Button size="sm" variant="outline"><Plus className="h-3.5 w-3.5 mr-1" />New campaign</Button>} />
+            <div className="grid md:grid-cols-2 gap-3">
+              {reviews.map((r) => (
+                <div key={r.name} className="rounded-lg border border-border/60 p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="font-semibold">{r.name}</div>
+                    <Badge variant="outline" className="font-normal">{r.due}</Badge>
+                  </div>
+                  <div className="mt-1 text-xs text-muted-foreground">{r.scope} · reviewer {r.reviewer}</div>
+                  <Progress value={r.progress} className="mt-2 h-1.5" />
+                  <div className="mt-1 text-[11px] text-muted-foreground">{r.progress}% complete</div>
+                </div>
+              ))}
+            </div>
+          </CardContent></Card>
+        </TabsContent>
+
+        <TabsContent value="policies" className="space-y-3">
+          <Card><CardContent className="p-4 space-y-3">
+            <SectionHeader title="Conditional access policies" right={<Button size="sm" variant="outline"><Plus className="h-3.5 w-3.5 mr-1" />New policy</Button>} />
+            <Table>
+              <TableHeader><TableRow className="bg-muted/40 hover:bg-muted/40">
+                <TableHead>Policy</TableHead><TableHead>Type</TableHead><TableHead>Applies to</TableHead><TableHead>State</TableHead><TableHead />
+              </TableRow></TableHeader>
+              <TableBody>
+                {policies.map((p) => (
+                  <TableRow key={p.p}>
+                    <TableCell className="font-medium">{p.p}</TableCell>
+                    <TableCell><Badge variant="outline" className="font-normal">{p.type}</Badge></TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{p.roles}</TableCell>
+                    <TableCell><Badge variant="outline" className="font-normal text-success border-success/40">{p.state}</Badge></TableCell>
+                    <TableCell className="text-right"><Button size="sm" variant="ghost">Edit</Button></TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent></Card>
+        </TabsContent>
+
+        <TabsContent value="sod" className="space-y-3">
+          <Card><CardContent className="p-4 space-y-3">
+            <SectionHeader title="Segregation of Duties (SoD) conflicts" right={<Button size="sm" variant="outline"><Shield className="h-3.5 w-3.5 mr-1" />Run analysis</Button>} />
+            <Table>
+              <TableHeader><TableRow className="bg-muted/40 hover:bg-muted/40">
+                <TableHead>Conflict pair</TableHead><TableHead>Users affected</TableHead><TableHead>Severity</TableHead><TableHead />
+              </TableRow></TableHeader>
+              <TableBody>
+                {sod.map((s) => (
+                  <TableRow key={s.pair}>
+                    <TableCell className="font-medium">{s.pair}</TableCell>
+                    <TableCell>{s.users}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={
+                        "font-normal " + (s.severity === "Critical" ? "text-destructive border-destructive/40"
+                          : s.severity === "High" ? "text-warning border-warning/40"
+                          : s.severity === "Medium" ? "text-primary border-primary/40"
+                          : "text-muted-foreground")
+                      }>{s.severity}</Badge>
+                    </TableCell>
+                    <TableCell className="text-right"><Button size="sm" variant="ghost">Resolve</Button></TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent></Card>
+        </TabsContent>
+
+        <TabsContent value="delegation" className="space-y-3">
+          <div className="grid md:grid-cols-2 gap-3">
+            <Card><CardContent className="p-4">
+              <SectionHeader title="Delegated administration" />
+              <ul className="mt-2 divide-y divide-border/60 text-sm">
+                {[
+                  { d: "EMEA sales admins", scope: "Region · EMEA", roles: "Manager, Account Manager" },
+                  { d: "Finance controllers", scope: "Company · all", roles: "Accountant" },
+                  { d: "Support leads", scope: "Support tier 1-2", roles: "Support Agent" },
+                ].map((x) => (
+                  <li key={x.d} className="py-2">
+                    <div className="font-medium">{x.d}</div>
+                    <div className="text-xs text-muted-foreground">{x.scope} · {x.roles}</div>
+                  </li>
+                ))}
+              </ul>
+            </CardContent></Card>
+            <Card><CardContent className="p-4">
+              <SectionHeader title="Time-bound elevation (JIT)" />
+              <ul className="mt-2 divide-y divide-border/60 text-sm">
+                {[
+                  { u: "Ops · On-call", role: "Super Admin", left: "3h 12m" },
+                  { u: "Priya Shah", role: "Finance Admin", left: "1h 40m" },
+                ].map((x) => (
+                  <li key={x.u} className="flex items-center justify-between py-2">
+                    <div><div className="font-medium">{x.u}</div><div className="text-xs text-muted-foreground">→ {x.role}</div></div>
+                    <Badge variant="outline" className="font-normal">{x.left} left</Badge>
+                  </li>
+                ))}
+              </ul>
+            </CardContent></Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="audit" className="space-y-3">
+          <Card><CardContent className="p-4 space-y-3">
+            <SectionHeader title="Governance audit trail" right={<Button size="sm" variant="outline"><Download className="h-3.5 w-3.5 mr-1" />Export</Button>} />
+            <ActivityFeed items={audit} />
+          </CardContent></Card>
+        </TabsContent>
+
+        <TabsContent value="api" className="space-y-3">
+          <div className="grid md:grid-cols-2 gap-3">
+            <Card><CardContent className="p-4">
+              <SectionHeader title="SCIM provisioning" />
+              <div className="mt-2 text-xs text-muted-foreground">Endpoint</div>
+              <div className="mt-1 rounded-md border border-border/60 bg-muted/40 p-2 font-mono text-xs">https://api.saas-vala.app/scim/v2</div>
+              <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+                <div className="rounded border border-border/60 p-2"><div className="text-muted-foreground">Last sync</div><div className="font-semibold">2m ago</div></div>
+                <div className="rounded border border-border/60 p-2"><div className="text-muted-foreground">Users provisioned</div><div className="font-semibold">312</div></div>
+              </div>
+              <Button className="mt-3 w-full" variant="outline"><KeyRound className="h-3.5 w-3.5 mr-1" />Rotate SCIM token</Button>
+            </CardContent></Card>
+            <Card><CardContent className="p-4">
+              <SectionHeader title="Identity providers" />
+              <ul className="mt-2 divide-y divide-border/60 text-sm">
+                {[
+                  { p: "Okta", proto: "SAML 2.0", status: "Connected" },
+                  { p: "Azure AD", proto: "OIDC", status: "Connected" },
+                  { p: "Google Workspace", proto: "OIDC", status: "Connected" },
+                ].map((x) => (
+                  <li key={x.p} className="flex items-center justify-between py-2">
+                    <div><div className="font-medium">{x.p}</div><div className="text-xs text-muted-foreground">{x.proto}</div></div>
+                    <Badge variant="outline" className="font-normal text-success border-success/40">{x.status}</Badge>
+                  </li>
+                ))}
+              </ul>
+            </CardContent></Card>
+          </div>
+        </TabsContent>
+      </Tabs>
     </Shell>
   );
 }
