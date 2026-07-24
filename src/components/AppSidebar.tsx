@@ -22,35 +22,30 @@ import {
 import { Input } from "@/components/ui/input";
 import { modules, groups } from "@/lib/modules";
 import { SYSTEM_IDENTITY } from "@/lib/system-identity";
-import { useAuth } from "@/lib/auth";
-import { isGroupVisibleForRole } from "@/lib/role-visibility";
 
 const GROUP_STATE_KEY = "vala.sidebar.groups.v1";
+
+function loadGroupState(): Record<string, boolean> {
+  if (typeof window === "undefined") return {};
+  try {
+    return JSON.parse(localStorage.getItem(GROUP_STATE_KEY) || "{}") ?? {};
+  } catch {
+    return {};
+  }
+}
 
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const [q, setQ] = useState("");
-  // Hydrate AFTER mount to keep SSR & client first render identical.
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
-  const [hydrated, setHydrated] = useState(false);
-  const { primaryRole } = useAuth();
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => loadGroupState());
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(GROUP_STATE_KEY);
-      if (raw) setOpenGroups(JSON.parse(raw) ?? {});
-    } catch {}
-    setHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (!hydrated) return;
     try {
       localStorage.setItem(GROUP_STATE_KEY, JSON.stringify(openGroups));
     } catch {}
-  }, [openGroups, hydrated]);
+  }, [openGroups]);
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -65,19 +60,18 @@ export function AppSidebar() {
 
   const grouped = useMemo(() => {
     return groups
-      .filter((g) => isGroupVisibleForRole(g, primaryRole))
       .map((g) => ({ group: g, items: filtered.filter((m) => m.group === g) }))
       .filter((g) => g.items.length > 0);
-  }, [filtered, primaryRole]);
+  }, [filtered]);
 
   const isActive = (url: string) =>
     pathname === url || pathname.startsWith(url + "/");
 
   const isGroupOpen = (group: string, items: { url: string }[]) => {
     if (q) return true;
-    if (hydrated && group in openGroups) return openGroups[group];
-    // Deterministic default for SSR / pre-hydration: all groups open.
-    return true;
+    if (group in openGroups) return openGroups[group];
+    // Default: open if contains active route, otherwise open for first-time UX
+    return items.some((m) => isActive(m.url)) || true;
   };
   const toggleGroup = (group: string, next: boolean) =>
     setOpenGroups((s) => ({ ...s, [group]: next }));

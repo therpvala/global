@@ -49,7 +49,7 @@ function LoginPage() {
             onSubmit={(e) => {
               e.preventDefault();
               login(email, [role]);
-              navigate({ to: "/dashboard" as any });
+              navigate({ to: "/" });
             }}
           >
             <div className="space-y-1.5">

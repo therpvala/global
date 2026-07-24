@@ -10,10 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SuperAdminRouteImport } from './routes/super-admin'
-import { Route as MarketplaceManagerRouteImport } from './routes/marketplace-manager'
 import { Route as ManagerRouteImport } from './routes/manager'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AccountantRouteImport } from './routes/accountant'
 import { Route as AccountManagerRouteImport } from './routes/account-manager'
@@ -25,11 +23,6 @@ const SuperAdminRoute = SuperAdminRouteImport.update({
   path: '/super-admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MarketplaceManagerRoute = MarketplaceManagerRouteImport.update({
-  id: '/marketplace-manager',
-  path: '/marketplace-manager',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ManagerRoute = ManagerRouteImport.update({
   id: '/manager',
   path: '/manager',
@@ -38,11 +31,6 @@ const ManagerRoute = ManagerRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -77,10 +65,8 @@ export interface FileRoutesByFullPath {
   '/account-manager': typeof AccountManagerRoute
   '/accountant': typeof AccountantRoute
   '/admin': typeof AdminRoute
-  '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/manager': typeof ManagerRoute
-  '/marketplace-manager': typeof MarketplaceManagerRoute
   '/super-admin': typeof SuperAdminRoute
 }
 export interface FileRoutesByTo {
@@ -89,10 +75,8 @@ export interface FileRoutesByTo {
   '/account-manager': typeof AccountManagerRoute
   '/accountant': typeof AccountantRoute
   '/admin': typeof AdminRoute
-  '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/manager': typeof ManagerRoute
-  '/marketplace-manager': typeof MarketplaceManagerRoute
   '/super-admin': typeof SuperAdminRoute
 }
 export interface FileRoutesById {
@@ -102,10 +86,8 @@ export interface FileRoutesById {
   '/account-manager': typeof AccountManagerRoute
   '/accountant': typeof AccountantRoute
   '/admin': typeof AdminRoute
-  '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
   '/manager': typeof ManagerRoute
-  '/marketplace-manager': typeof MarketplaceManagerRoute
   '/super-admin': typeof SuperAdminRoute
 }
 export interface FileRouteTypes {
@@ -116,10 +98,8 @@ export interface FileRouteTypes {
     | '/account-manager'
     | '/accountant'
     | '/admin'
-    | '/dashboard'
     | '/login'
     | '/manager'
-    | '/marketplace-manager'
     | '/super-admin'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -128,10 +108,8 @@ export interface FileRouteTypes {
     | '/account-manager'
     | '/accountant'
     | '/admin'
-    | '/dashboard'
     | '/login'
     | '/manager'
-    | '/marketplace-manager'
     | '/super-admin'
   id:
     | '__root__'
@@ -140,10 +118,8 @@ export interface FileRouteTypes {
     | '/account-manager'
     | '/accountant'
     | '/admin'
-    | '/dashboard'
     | '/login'
     | '/manager'
-    | '/marketplace-manager'
     | '/super-admin'
   fileRoutesById: FileRoutesById
 }
@@ -153,10 +129,8 @@ export interface RootRouteChildren {
   AccountManagerRoute: typeof AccountManagerRoute
   AccountantRoute: typeof AccountantRoute
   AdminRoute: typeof AdminRoute
-  DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
   ManagerRoute: typeof ManagerRoute
-  MarketplaceManagerRoute: typeof MarketplaceManagerRoute
   SuperAdminRoute: typeof SuperAdminRoute
 }
 
@@ -167,13 +141,6 @@ declare module '@tanstack/react-router' {
       path: '/super-admin'
       fullPath: '/super-admin'
       preLoaderRoute: typeof SuperAdminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/marketplace-manager': {
-      id: '/marketplace-manager'
-      path: '/marketplace-manager'
-      fullPath: '/marketplace-manager'
-      preLoaderRoute: typeof MarketplaceManagerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/manager': {
@@ -188,13 +155,6 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -241,10 +201,8 @@ const rootRouteChildren: RootRouteChildren = {
   AccountManagerRoute: AccountManagerRoute,
   AccountantRoute: AccountantRoute,
   AdminRoute: AdminRoute,
-  DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
   ManagerRoute: ManagerRoute,
-  MarketplaceManagerRoute: MarketplaceManagerRoute,
   SuperAdminRoute: SuperAdminRoute,
 }
 export const routeTree = rootRouteImport
