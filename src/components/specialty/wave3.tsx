@@ -27,6 +27,20 @@ import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
+import { useMemo, useReducer, useState } from "react";
+import {
+  activeSodConflicts,
+  assignmentsToCsv,
+  createInitialState,
+  filterRoles,
+  hasGrant,
+  pendingRequests,
+  permissionCountFor,
+  reducer as rolesReducer,
+  type RiskLevel,
+} from "@/lib/roles-governance";
 import {
   ActivityFeed, FilterBar, KpiStrip, MiniBarChart, QuickActions, RecordsTable,
   SectionHeader, Sparkline, type Kpi, type ActivityItem, type RecordRow,
