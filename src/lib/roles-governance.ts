@@ -143,7 +143,7 @@ export function createInitialState(): GovernanceState {
 export type Action =
   | { type: "toggle_grant"; roleId: string; permId: string }
   | { type: "set_grant"; roleId: string; permId: string; granted: boolean }
-  | { type: "add_role"; role: Omit<Role, "id" | "users" | "updated" | "type"> & Partial<Pick<Role, "id" | "users" | "updated" | "type">> }
+  | { type: "add_role"; role: { name: string; risk: RiskLevel; scope?: string; type?: RoleType; id?: string; users?: number; updated?: string; description?: string } }
   | { type: "clone_role"; sourceId: string; name: string }
   | { type: "delete_role"; roleId: string }
   | { type: "decide_request"; id: string; decision: "approve" | "deny" }
