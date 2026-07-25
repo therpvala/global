@@ -27,6 +27,20 @@ import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
+import { useMemo, useReducer, useState } from "react";
+import {
+  activeSodConflicts,
+  assignmentsToCsv,
+  createInitialState,
+  filterRoles,
+  hasGrant,
+  pendingRequests,
+  permissionCountFor,
+  reducer as rolesReducer,
+  type RiskLevel,
+} from "@/lib/roles-governance";
 import {
   ActivityFeed, FilterBar, KpiStrip, MiniBarChart, QuickActions, RecordsTable,
   SectionHeader, Sparkline, type Kpi, type ActivityItem, type RecordRow,
@@ -610,34 +624,73 @@ export function AuditConsole() {
    11. Roles — Okta Identity Governance
    ========================================================= */
 export function RolesConsole() {
-  const roles = [
-    { r: "Super Admin", users: 3, perms: 184, scope: "Global", type: "System", risk: "Critical", updated: "2d" },
-    { r: "Admin", users: 12, perms: 142, scope: "Workspace", type: "System", risk: "High", updated: "5d" },
-    { r: "Manager", users: 48, perms: 84, scope: "Team", type: "Custom", risk: "Medium", updated: "1w" },
-    { r: "Account Manager", users: 22, perms: 56, scope: "Customer", type: "Custom", risk: "Medium", updated: "2w" },
-    { r: "Accountant", users: 8, perms: 38, scope: "Finance", type: "Custom", risk: "High", updated: "3d" },
-    { r: "Support Agent", users: 31, perms: 24, scope: "Support", type: "Custom", risk: "Low", updated: "1d" },
-    { r: "Read-only", users: 64, perms: 12, scope: "Reports", type: "System", risk: "Low", updated: "1mo" },
-  ];
-  const permCatalog = [
-    { cat: "Billing", perms: ["invoices.read","invoices.write","refunds.issue","payouts.manage"], sensitive: 2 },
-    { cat: "CRM", perms: ["leads.read","leads.write","deals.close","contacts.export"], sensitive: 1 },
-    { cat: "HR", perms: ["employees.read","payroll.run","offers.send","terminate"], sensitive: 3 },
-    { cat: "Platform", perms: ["users.invite","roles.assign","api-keys.create","audit.read"], sensitive: 4 },
-    { cat: "Data", perms: ["reports.read","reports.export","warehouse.query","pii.unmask"], sensitive: 2 },
-  ];
+  const [state, dispatch] = useReducer(rolesReducer, undefined, createInitialState);
+  const [query, setQuery] = useState("");
+  const [newRoleName, setNewRoleName] = useState("");
+  const [newRoleScope, setNewRoleScope] = useState("Workspace");
+  const [newRoleBase, setNewRoleBase] = useState("readonly");
+
+  const visibleRoles = useMemo(() => filterRoles(state.roles, query), [state.roles, query]);
+  const permsByCategory = useMemo(() => {
+    const map = new Map<string, typeof state.permissions>();
+    for (const p of state.permissions) {
+      const arr = map.get(p.category) ?? [];
+      arr.push(p);
+      map.set(p.category, arr);
+    }
+    return Array.from(map, ([cat, perms]) => ({
+      cat,
+      perms,
+      sensitive: perms.filter((p) => p.sensitive).length,
+    }));
+  }, [state.permissions]);
+  const matrixPerms = useMemo(
+    () => state.permissions.filter((p) => p.sensitive || p.id.endsWith(".write") || p.id.endsWith(".export")),
+    [state.permissions],
+  );
+  const matrixRoles = state.roles.slice(0, 5);
+
+  const handleCreateRole = () => {
+    const name = newRoleName.trim();
+    if (!name) {
+      toast.error("Role name is required");
+      return;
+    }
+    const before = state.roles.length;
+    dispatch({
+      type: "clone_role",
+      sourceId: newRoleBase,
+      name,
+    });
+    // Fallback: if clone target missing, add a fresh custom role.
+    if (!state.roles.some((r) => r.id === newRoleBase)) {
+      dispatch({ type: "add_role", role: { name, scope: newRoleScope, risk: "Medium" } });
+    }
+    // We can't inspect updated state synchronously, so guard on name collision
+    // by clearing input regardless; duplicate names are ignored by the reducer.
+    setNewRoleName("");
+    toast.success(`${name} created`, { description: before + 1 === state.roles.length + 1 ? "Cloned from base role" : undefined });
+  };
+
+  const handleExportCsv = () => {
+    const csv = assignmentsToCsv(state);
+    if (typeof window === "undefined") return;
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "role-assignments.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Assignments exported", { description: "role-assignments.csv" });
+  };
+
   const assignments: RecordRow[] = [
     { id: "U-8821", name: "Ava Chen", status: "active", owner: "Admin · Manager", updated: "just now", tag: "SSO" },
     { id: "U-8809", name: "Marcus Hill", status: "active", owner: "Account Manager", updated: "12m", tag: "SSO+MFA" },
     { id: "U-8790", name: "Priya Shah", status: "review", owner: "Accountant", updated: "1h", tag: "MFA" },
     { id: "U-8712", name: "Diego Alvarez", status: "active", owner: "Support Agent", updated: "3h", tag: "SSO" },
     { id: "U-8688", name: "Yui Nakamura", status: "pending", owner: "Manager", updated: "1d", tag: "Pending MFA" },
-  ];
-  const requests: RecordRow[] = [
-    { id: "REQ-4421", name: "Elevate to Finance Admin", status: "pending", owner: "Priya Shah", updated: "18m", tag: "Justified" },
-    { id: "REQ-4420", name: "Grant warehouse.query", status: "pending", owner: "Ravi Kumar", updated: "42m", tag: "SoD check" },
-    { id: "REQ-4418", name: "Add to Support Agent", status: "active", owner: "Nia Adeyemi", updated: "2h", tag: "Auto-approved" },
-    { id: "REQ-4415", name: "Emergency break-glass", status: "review", owner: "Ops · On-call", updated: "5h", tag: "Time-bound 4h" },
   ];
   const reviews = [
     { name: "Q4 Finance access review", scope: "Accountant + Admin", progress: 72, due: "in 6 days", reviewer: "CFO office" },
@@ -653,12 +706,6 @@ export function RolesConsole() {
     { p: "Approval chain · 2-person rule", type: "Workflow", roles: "Refunds > $5k", state: "Enforced" },
     { p: "Session lifetime · 8h", type: "Session", roles: "All roles", state: "Enforced" },
   ];
-  const sod = [
-    { pair: "Vendor create ↔ Payment approve", users: 2, severity: "High" },
-    { pair: "Journal post ↔ Journal approve", users: 1, severity: "Critical" },
-    { pair: "User invite ↔ Role assign", users: 4, severity: "Medium" },
-    { pair: "Refund issue ↔ Refund approve", users: 0, severity: "Low" },
-  ];
   const audit: ActivityItem[] = [
     { who: "Ava Chen", what: "assigned", target: "Manager → Marcus Hill", when: "3m", kind: "approve" },
     { who: "System", what: "expired JIT", target: "Break-glass · Ops", when: "22m", kind: "update" },
@@ -672,13 +719,13 @@ export function RolesConsole() {
         eyebrow={[{ icon: ShieldCheck, text: "Identity governance" }]}
         title="Roles & permissions"
         subtitle="Define, assign and audit every role across the platform with least-privilege defaults."
-        actions={[{ label: "New role", icon: Plus }, { label: "Access review", icon: ClipboardList }, { label: "Import from IdP", icon: Download }]}
+        actions={[{ label: "Access review", icon: ClipboardList }, { label: "Import from IdP", icon: Download }]}
       />
       <KpiStrip kpis={[
-        { label: "Roles", value: "18", delta: "+2", tone: "up" },
-        { label: "Users with elevated access", value: "27", delta: "-3", tone: "up" },
-        { label: "Pending access requests", value: "9", delta: "SLA ok", tone: "neutral" },
-        { label: "Last access review", value: "12 days", delta: "On schedule", tone: "up" },
+        { label: "Roles", value: String(state.roles.length), delta: `${state.roles.filter((r) => r.type === "Custom").length} custom`, tone: "up" },
+        { label: "Grants active", value: String(state.grants.size), delta: "live matrix", tone: "up" },
+        { label: "Pending access requests", value: String(pendingRequests(state).length), delta: pendingRequests(state).length === 0 ? "clear" : "SLA ok", tone: pendingRequests(state).length === 0 ? "up" : "neutral" },
+        { label: "Open SoD conflicts", value: String(activeSodConflicts(state).length), delta: activeSodConflicts(state).length === 0 ? "all resolved" : "needs review", tone: activeSodConflicts(state).length === 0 ? "up" : "down" },
       ]} />
       <Tabs defaultValue="roles" className="space-y-3">
         <TabsList className="flex flex-wrap h-auto">
@@ -696,7 +743,22 @@ export function RolesConsole() {
 
         <TabsContent value="roles" className="space-y-3">
           <Card><CardContent className="p-4 space-y-3">
-            <SectionHeader title="Roles matrix" right={<FilterBar />} />
+            <SectionHeader
+              title="Roles matrix"
+              right={
+                <div className="flex items-center gap-2">
+                  <Input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Search role, scope, risk…"
+                    className="h-8 w-56"
+                  />
+                  <Button size="sm" variant="outline" onClick={handleExportCsv}>
+                    <Download className="h-3.5 w-3.5 mr-1" />Export CSV
+                  </Button>
+                </div>
+              }
+            />
             <Table>
               <TableHeader><TableRow className="bg-muted/40 hover:bg-muted/40">
                 <TableHead>Role</TableHead><TableHead>Type</TableHead><TableHead>Users</TableHead>
@@ -704,28 +766,61 @@ export function RolesConsole() {
                 <TableHead>Updated</TableHead><TableHead />
               </TableRow></TableHeader>
               <TableBody>
-                {roles.map((r) => (
-                  <TableRow key={r.r}>
-                    <TableCell className="font-medium">{r.r}</TableCell>
-                    <TableCell><Badge variant="outline" className="font-normal">{r.type}</Badge></TableCell>
-                    <TableCell>{r.users}</TableCell>
-                    <TableCell><Progress value={(r.perms / 184) * 100} className="h-1.5 w-32" /><span className="text-[11px] text-muted-foreground">{r.perms} granted</span></TableCell>
-                    <TableCell><Badge variant="outline" className="font-normal">{r.scope}</Badge></TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={
-                        "font-normal " + (r.risk === "Critical" ? "text-destructive border-destructive/40"
-                          : r.risk === "High" ? "text-warning border-warning/40"
-                          : r.risk === "Medium" ? "text-primary border-primary/40"
-                          : "text-muted-foreground")
-                      }>{r.risk}</Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground text-xs">{r.updated}</TableCell>
-                    <TableCell className="text-right">
-                      <Button size="sm" variant="ghost">Edit</Button>
-                      <Button size="sm" variant="ghost">Clone</Button>
+                {visibleRoles.map((r) => {
+                  const perms = permissionCountFor(state, r.id);
+                  const total = state.permissions.length;
+                  return (
+                    <TableRow key={r.id}>
+                      <TableCell className="font-medium">{r.name}</TableCell>
+                      <TableCell><Badge variant="outline" className="font-normal">{r.type}</Badge></TableCell>
+                      <TableCell>{r.users}</TableCell>
+                      <TableCell>
+                        <Progress value={(perms / total) * 100} className="h-1.5 w-32" />
+                        <span className="text-[11px] text-muted-foreground">{perms} / {total} granted</span>
+                      </TableCell>
+                      <TableCell><Badge variant="outline" className="font-normal">{r.scope}</Badge></TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={
+                          "font-normal " + (r.risk === "Critical" ? "text-destructive border-destructive/40"
+                            : r.risk === "High" ? "text-warning border-warning/40"
+                            : r.risk === "Medium" ? "text-primary border-primary/40"
+                            : "text-muted-foreground")
+                        }>{r.risk}</Badge>
+                      </TableCell>
+                      <TableCell className="text-muted-foreground text-xs">{r.updated}</TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            dispatch({ type: "clone_role", sourceId: r.id, name: `${r.name} (copy)` });
+                            toast.success(`Cloned ${r.name}`);
+                          }}
+                        >
+                          Clone
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          disabled={r.type === "System"}
+                          onClick={() => {
+                            dispatch({ type: "delete_role", roleId: r.id });
+                            toast.success(`Deleted ${r.name}`);
+                          }}
+                        >
+                          Delete
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+                {visibleRoles.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center text-sm text-muted-foreground py-6">
+                      No roles match "{query}".
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </CardContent></Card>
@@ -744,13 +839,32 @@ export function RolesConsole() {
             <Card><CardContent className="p-4">
               <SectionHeader title="New role" />
               <div className="mt-2 space-y-2 text-sm">
-                <Input placeholder="Role name" className="h-9" />
-                <Input placeholder="Description" className="h-9" />
+                <Input
+                  placeholder="Role name"
+                  className="h-9"
+                  value={newRoleName}
+                  onChange={(e) => setNewRoleName(e.target.value)}
+                />
                 <div className="grid grid-cols-2 gap-2">
-                  <Input placeholder="Scope" defaultValue="Workspace" className="h-9" />
-                  <Input placeholder="Base role" defaultValue="Read-only" className="h-9" />
+                  <Input
+                    placeholder="Scope"
+                    value={newRoleScope}
+                    onChange={(e) => setNewRoleScope(e.target.value)}
+                    className="h-9"
+                  />
+                  <select
+                    value={newRoleBase}
+                    onChange={(e) => setNewRoleBase(e.target.value)}
+                    className="h-9 rounded-md border border-input bg-background px-2 text-sm"
+                  >
+                    {state.roles.map((r) => (
+                      <option key={r.id} value={r.id}>Base: {r.name}</option>
+                    ))}
+                  </select>
                 </div>
-                <Button className="w-full"><Plus className="h-3.5 w-3.5 mr-1" />Create role</Button>
+                <Button className="w-full" onClick={handleCreateRole}>
+                  <Plus className="h-3.5 w-3.5 mr-1" />Create role
+                </Button>
               </div>
             </CardContent></Card>
             <Card><CardContent className="p-4">
@@ -765,7 +879,7 @@ export function RolesConsole() {
           <Card><CardContent className="p-4 space-y-3">
             <SectionHeader title="Permission catalog" right={<Button size="sm" variant="outline"><Plus className="h-3.5 w-3.5 mr-1" />New permission</Button>} />
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {permCatalog.map((c) => (
+              {permsByCategory.map((c) => (
                 <div key={c.cat} className="rounded-lg border border-border/60 p-3">
                   <div className="flex items-center justify-between">
                     <div className="font-semibold flex items-center gap-2"><Key className="h-3.5 w-3.5" />{c.cat}</div>
@@ -773,8 +887,8 @@ export function RolesConsole() {
                   </div>
                   <ul className="mt-2 space-y-1 text-xs">
                     {c.perms.map((p) => (
-                      <li key={p} className="flex items-center justify-between rounded border border-border/60 px-2 py-1">
-                        <span className="font-mono">{p}</span>
+                      <li key={p.id} className="flex items-center justify-between rounded border border-border/60 px-2 py-1">
+                        <span className="font-mono">{p.id}</span>
                         <BadgeCheck className="h-3 w-3 text-success" />
                       </li>
                     ))}
@@ -784,22 +898,39 @@ export function RolesConsole() {
             </div>
           </CardContent></Card>
           <Card><CardContent className="p-4 space-y-3">
-            <SectionHeader title="Role × Permission matrix" />
+            <SectionHeader
+              title="Role × Permission matrix"
+              right={<span className="text-xs text-muted-foreground">Click a cell to toggle</span>}
+            />
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader><TableRow className="bg-muted/40 hover:bg-muted/40">
                   <TableHead>Permission</TableHead>
-                  {roles.slice(0,5).map((r) => <TableHead key={r.r} className="text-center">{r.r}</TableHead>)}
+                  {matrixRoles.map((r) => <TableHead key={r.id} className="text-center">{r.name}</TableHead>)}
                 </TableRow></TableHeader>
                 <TableBody>
-                  {["invoices.write","refunds.issue","payroll.run","api-keys.create","pii.unmask","reports.export"].map((p, i) => (
-                    <TableRow key={p}>
-                      <TableCell className="font-mono text-xs">{p}</TableCell>
-                      {roles.slice(0,5).map((r, j) => (
-                        <TableCell key={r.r} className="text-center">
-                          {(i + j) % 3 === 0 ? <Check className="h-3.5 w-3.5 text-success inline" /> : <span className="text-muted-foreground">—</span>}
-                        </TableCell>
-                      ))}
+                  {matrixPerms.map((p) => (
+                    <TableRow key={p.id}>
+                      <TableCell className="font-mono text-xs">
+                        {p.id}
+                        {p.sensitive && (
+                          <Badge variant="outline" className="ml-2 font-normal text-warning border-warning/40 text-[10px]">sensitive</Badge>
+                        )}
+                      </TableCell>
+                      {matrixRoles.map((r) => {
+                        const checked = hasGrant(state, r.id, p.id);
+                        return (
+                          <TableCell key={r.id} className="text-center">
+                            <Checkbox
+                              checked={checked}
+                              aria-label={`${r.name} ${p.id}`}
+                              onCheckedChange={(v) =>
+                                dispatch({ type: "set_grant", roleId: r.id, permId: p.id, granted: v === true })
+                              }
+                            />
+                          </TableCell>
+                        );
+                      })}
                     </TableRow>
                   ))}
                 </TableBody>
@@ -835,7 +966,9 @@ export function RolesConsole() {
               <div className="mt-2 space-y-2">
                 <Button variant="outline" className="w-full justify-start"><Users className="h-3.5 w-3.5 mr-2" />Bulk assign role</Button>
                 <Button variant="outline" className="w-full justify-start"><UserCheck className="h-3.5 w-3.5 mr-2" />Bulk revoke role</Button>
-                <Button variant="outline" className="w-full justify-start"><Download className="h-3.5 w-3.5 mr-2" />Export assignments (CSV)</Button>
+                <Button variant="outline" className="w-full justify-start" onClick={handleExportCsv}>
+                  <Download className="h-3.5 w-3.5 mr-2" />Export assignments (CSV)
+                </Button>
                 <Button variant="outline" className="w-full justify-start"><Repeat className="h-3.5 w-3.5 mr-2" />Sync from IdP now</Button>
               </div>
             </CardContent></Card>
@@ -845,7 +978,61 @@ export function RolesConsole() {
         <TabsContent value="requests" className="space-y-3">
           <Card><CardContent className="p-4 space-y-3">
             <SectionHeader title="Pending access requests" right={<Button size="sm" variant="outline"><ClipboardList className="h-3.5 w-3.5 mr-1" />My queue</Button>} />
-            <RecordsTable rows={requests} />
+            <Table>
+              <TableHeader><TableRow className="bg-muted/40 hover:bg-muted/40">
+                <TableHead>ID</TableHead><TableHead>Request</TableHead><TableHead>Requester</TableHead>
+                <TableHead>Status</TableHead><TableHead>Age</TableHead><TableHead className="text-right">Action</TableHead>
+              </TableRow></TableHeader>
+              <TableBody>
+                {state.requests.map((r) => (
+                  <TableRow key={r.id}>
+                    <TableCell className="font-mono text-xs">{r.id}</TableCell>
+                    <TableCell className="font-medium">{r.title}</TableCell>
+                    <TableCell className="text-xs">{r.requester}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={
+                          "font-normal " +
+                          (r.status === "approved"
+                            ? "text-success border-success/40"
+                            : r.status === "denied"
+                              ? "text-destructive border-destructive/40"
+                              : "text-warning border-warning/40")
+                        }
+                      >
+                        {r.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{r.age}</TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={r.status !== "pending"}
+                        onClick={() => {
+                          dispatch({ type: "decide_request", id: r.id, decision: "approve" });
+                          toast.success(`Approved ${r.id}`);
+                        }}
+                      >
+                        Approve
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={r.status !== "pending"}
+                        onClick={() => {
+                          dispatch({ type: "decide_request", id: r.id, decision: "deny" });
+                          toast.success(`Denied ${r.id}`);
+                        }}
+                      >
+                        Deny
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </CardContent></Card>
           <div className="grid md:grid-cols-3 gap-3">
             <Card><CardContent className="p-4"><SectionHeader title="SLA" />
@@ -916,19 +1103,32 @@ export function RolesConsole() {
                 <TableHead>Conflict pair</TableHead><TableHead>Users affected</TableHead><TableHead>Severity</TableHead><TableHead />
               </TableRow></TableHeader>
               <TableBody>
-                {sod.map((s) => (
-                  <TableRow key={s.pair}>
+                {state.sod.map((s) => (
+                  <TableRow key={s.id} className={s.resolved ? "opacity-60" : undefined}>
                     <TableCell className="font-medium">{s.pair}</TableCell>
                     <TableCell>{s.users}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className={
-                        "font-normal " + (s.severity === "Critical" ? "text-destructive border-destructive/40"
+                        "font-normal " + (s.resolved ? "text-success border-success/40"
+                          : s.severity === "Critical" ? "text-destructive border-destructive/40"
                           : s.severity === "High" ? "text-warning border-warning/40"
                           : s.severity === "Medium" ? "text-primary border-primary/40"
                           : "text-muted-foreground")
-                      }>{s.severity}</Badge>
+                      }>{s.resolved ? "Resolved" : (s.severity as RiskLevel)}</Badge>
                     </TableCell>
-                    <TableCell className="text-right"><Button size="sm" variant="ghost">Resolve</Button></TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={s.resolved}
+                        onClick={() => {
+                          dispatch({ type: "resolve_sod", id: s.id });
+                          toast.success("Conflict resolved");
+                        }}
+                      >
+                        {s.resolved ? "Done" : "Resolve"}
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
