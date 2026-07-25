@@ -63,22 +63,14 @@ export function hasGrant(state: GovernanceState, roleId: string, permId: string)
 /* ------------------------------- seed ------------------------------- */
 
 const seedRoles: Role[] = [
-  { id: "super_admin", name: "Super Admin", type: "System", scope: "Global", users: 3, perms: 184 as unknown as never, risk: "Critical", updated: "2d" } as unknown as Role,
+  { id: "super_admin", name: "Super Admin", type: "System", scope: "Global", users: 3, risk: "Critical", updated: "2d" },
   { id: "admin", name: "Admin", type: "System", scope: "Workspace", users: 12, risk: "High", updated: "5d" },
   { id: "manager", name: "Manager", type: "Custom", scope: "Team", users: 48, risk: "Medium", updated: "1w" },
   { id: "account_manager", name: "Account Manager", type: "Custom", scope: "Customer", users: 22, risk: "Medium", updated: "2w" },
   { id: "accountant", name: "Accountant", type: "Custom", scope: "Finance", users: 8, risk: "High", updated: "3d" },
   { id: "support", name: "Support Agent", type: "Custom", scope: "Support", users: 31, risk: "Low", updated: "1d" },
   { id: "readonly", name: "Read-only", type: "System", scope: "Reports", users: 64, risk: "Low", updated: "1mo" },
-].map((r) => ({
-  id: r.id,
-  name: r.name,
-  type: r.type as RoleType,
-  scope: r.scope,
-  users: r.users,
-  risk: r.risk as RiskLevel,
-  updated: r.updated,
-}));
+];
 
 const seedPermissions: Permission[] = [
   { id: "invoices.read", category: "Billing" },
