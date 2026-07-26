@@ -47,6 +47,8 @@ import {
   InventoryConsole, ManufacturingConsole,
 } from "@/components/specialty/wave4";
 import { AchievementsConsole } from "@/components/specialty/AchievementsConsole";
+import { RequirePermission } from "@/components/permissions";
+import { moduleKeyFromUrl } from "@/lib/permissions";
 
 const specialty: Record<string, ComponentType> = {
   "/super-admin": SuperAdminCommand,
@@ -116,11 +118,24 @@ function SplatRoute() {
   const params = Route.useParams() as { _splat?: string };
   const path = "/" + (params._splat ?? "");
   const Specialty = specialty[path];
-  if (Specialty) return <Specialty />;
   const module = modules.find((m) => m.url === path || path.startsWith(m.url + "/"));
+  const key = moduleKeyFromUrl(path);
+  const permission = `${key}.view`;
+
+  if (Specialty) {
+    return (
+      <RequirePermission permission={permission} label={module?.title ?? path}>
+        <Specialty />
+      </RequirePermission>
+    );
+  }
 
   if (module) {
-    return <ModulePage module={module} />;
+    return (
+      <RequirePermission permission={permission} label={module.title}>
+        <ModulePage module={module} />
+      </RequirePermission>
+    );
   }
 
   return (
