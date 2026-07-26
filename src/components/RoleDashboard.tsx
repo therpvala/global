@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { roleConfigs, modulesForGroups } from "@/lib/role-config";
 import { useAuth, type AppRole } from "@/lib/auth";
+import { usePermissions } from "@/lib/use-permissions";
 import {
   ActivityFeed,
   ApprovalsList,
@@ -61,9 +62,12 @@ const sampleApprovals: Approval[] = [
 
 export function RoleDashboard({ role: forcedRole }: { role?: AppRole }) {
   const { primaryRole, user } = useAuth();
+  const { canAccessModule } = usePermissions();
   const role = forcedRole ?? primaryRole;
   const cfg = roleConfigs[role] ?? roleConfigs.user;
-  const grouped = modulesForGroups(cfg.groups);
+  const grouped = modulesForGroups(cfg.groups)
+    .map((g) => ({ ...g, items: g.items.filter((m) => canAccessModule(m.url)) }))
+    .filter((g) => g.items.length > 0);
 
   return (
     <div className="space-y-6">
