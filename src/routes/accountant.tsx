@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { RequirePermission } from "@/components/permissions";
 import { RoleDashboard } from "@/components/RoleDashboard";
 
 export const Route = createFileRoute("/accountant")({
@@ -8,5 +9,9 @@ export const Route = createFileRoute("/accountant")({
       { name: "description", content: "Ledger, invoicing, payables, and reporting." },
     ],
   }),
-  component: () => <RoleDashboard role="accountant" />,
+  component: () => (
+    <RequirePermission permission="accountant.view" label="the Accountant desk">
+      <RoleDashboard role="accountant" />
+    </RequirePermission>
+  ),
 });
