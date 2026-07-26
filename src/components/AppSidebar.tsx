@@ -22,6 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { modules, groups } from "@/lib/modules";
 import { SYSTEM_IDENTITY } from "@/lib/system-identity";
+import { usePermissions } from "@/lib/use-permissions";
 
 const GROUP_STATE_KEY = "vala.sidebar.groups.v1";
 
@@ -37,6 +38,7 @@ function loadGroupState(): Record<string, boolean> {
 export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { state } = useSidebar();
+  const { canAccessModule } = usePermissions();
   const collapsed = state === "collapsed";
   const [q, setQ] = useState("");
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => loadGroupState());
@@ -49,14 +51,15 @@ export function AppSidebar() {
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
-    if (!needle) return modules;
-    return modules.filter(
+    const visible = modules.filter((m) => canAccessModule(m.url));
+    if (!needle) return visible;
+    return visible.filter(
       (m) =>
         m.title.toLowerCase().includes(needle) ||
         m.group.toLowerCase().includes(needle) ||
         m.desc.toLowerCase().includes(needle),
     );
-  }, [q]);
+  }, [q, canAccessModule]);
 
   const grouped = useMemo(() => {
     return groups
