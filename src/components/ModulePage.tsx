@@ -42,6 +42,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { ModuleItem } from "@/lib/modules";
+import { useModuleActions } from "@/lib/use-permissions";
+import { PermButton } from "@/components/permissions";
 import {
   KpiStrip,
   RecordsTable,
@@ -164,6 +166,10 @@ function mockApprovals(_m: ModuleItem): Approval[] {
 
 export function ModulePage({ module }: { module: ModuleItem }) {
   const Icon = module.icon;
+  const actions = useModuleActions(module.url);
+  const key = module.url.replace(/^\/+/, "").split("/")[0];
+  const perm = (a: string) => `${key}.${a}`;
+  const allow = (a: string) => actions.includes(a as never);
   const kpis = mockKpis(module);
   const rows = mockRows(module);
   const activity = mockActivity(module);
@@ -212,14 +218,14 @@ export function ModulePage({ module }: { module: ModuleItem }) {
             <MessageSquare className="mr-1.5 h-3.5 w-3.5" />
             Discuss
           </Button>
-          <Button variant="outline" size="sm" className="h-8">
+          <PermButton permission={perm("export")} variant="outline" size="sm" className="h-8">
             <Download className="mr-1.5 h-3.5 w-3.5" />
             Export
-          </Button>
-          <Button size="sm" className="h-8">
+          </PermButton>
+          <PermButton permission={perm("create")} size="sm" className="h-8">
             <Plus className="mr-1.5 h-3.5 w-3.5" />
             New
-          </Button>
+          </PermButton>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -227,10 +233,10 @@ export function ModulePage({ module }: { module: ModuleItem }) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>Configure</DropdownMenuItem>
-              <DropdownMenuItem>Permissions</DropdownMenuItem>
-              <DropdownMenuItem>Audit log</DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive">Archive</DropdownMenuItem>
+              <DropdownMenuItem disabled={!allow("configure")}>Configure</DropdownMenuItem>
+              <DropdownMenuItem disabled={!allow("configure")}>Permissions</DropdownMenuItem>
+              <DropdownMenuItem disabled={!allow("view")}>Audit log</DropdownMenuItem>
+              <DropdownMenuItem disabled={!allow("delete")} className="text-destructive">Archive</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -243,7 +249,7 @@ export function ModulePage({ module }: { module: ModuleItem }) {
       <Tabs defaultValue="overview">
         <ScrollArea className="w-full">
           <TabsList className="bg-transparent border-b border-border/60 rounded-none w-max min-w-full justify-start h-auto p-0">
-            {[
+            {([
               ["overview", "Overview"],
               ["records", "Records"],
               ["pipeline", "Pipeline"],
@@ -261,7 +267,15 @@ export function ModulePage({ module }: { module: ModuleItem }) {
               ["data", "Import / Export"],
               ["access", "Access"],
               ["settings", "Settings"],
-            ].map(([v, l]) => (
+            ] as [string, string][])
+              .filter(([v]) => {
+                if (v === "approvals") return allow("approve");
+                if (v === "data") return allow("export") || allow("create");
+                if (v === "access" || v === "settings") return allow("configure");
+                if (v === "automation") return allow("edit");
+                return true;
+              })
+              .map(([v, l]) => (
               <TabsTrigger
                 key={v}
                 value={v}
@@ -528,9 +542,9 @@ export function ModulePage({ module }: { module: ModuleItem }) {
                   </div>
                   <div className="mt-1 text-xs text-muted-foreground">Auto-generated · last run today</div>
                   <div className="mt-2 flex gap-1.5">
-                    <Button variant="outline" size="sm" className="h-7 px-2 text-xs">Run</Button>
-                    <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">Schedule</Button>
-                    <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">Export</Button>
+                    <PermButton permission={perm("view")} variant="outline" size="sm" className="h-7 px-2 text-xs">Run</PermButton>
+                    <PermButton permission={perm("edit")} variant="ghost" size="sm" className="h-7 px-2 text-xs">Schedule</PermButton>
+                    <PermButton permission={perm("export")} variant="ghost" size="sm" className="h-7 px-2 text-xs">Export</PermButton>
                   </div>
                 </CardContent>
               </Card>
@@ -664,8 +678,8 @@ export function ModulePage({ module }: { module: ModuleItem }) {
                   Drop a file here or click to browse
                 </div>
                 <div className="mt-2 flex gap-2">
-                  <Button size="sm" className="h-8">Start import</Button>
-                  <Button variant="ghost" size="sm" className="h-8">Download template</Button>
+                  <PermButton permission={perm("create")} size="sm" className="h-8">Start import</PermButton>
+                  <PermButton permission={perm("view")} variant="ghost" size="sm" className="h-8">Download template</PermButton>
                 </div>
               </CardContent>
             </Card>
@@ -675,7 +689,7 @@ export function ModulePage({ module }: { module: ModuleItem }) {
                 <div className="mt-1 text-xs text-muted-foreground">Scheduled or one-off · filtered view export</div>
                 <div className="mt-3 grid grid-cols-3 gap-2 text-xs">
                   {["CSV", "XLSX", "PDF", "JSON", "Parquet", "API"].map((f) => (
-                    <Button key={f} variant="outline" size="sm" className="h-8">{f}</Button>
+                    <PermButton key={f} permission={perm("export")} variant="outline" size="sm" className="h-8">{f}</PermButton>
                   ))}
                 </div>
                 <div className="mt-3 text-[11px] text-muted-foreground inline-flex items-center gap-1"><ScrollText className="h-3 w-3" /> Last export: today, 4,210 rows</div>
