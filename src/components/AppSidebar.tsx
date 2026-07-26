@@ -124,30 +124,34 @@ export function AppSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={isActive("/super-admin")}
-                  tooltip="Super Admin"
-                >
-                  <Link to={"/super-admin" as any}>
-                    <Crown className="h-4 w-4" />
-                    <span>Super Admin</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={isActive("/master")}
-                  tooltip="Operations"
-                >
-                  <Link to={"/admin" as any}>
-                    <Activity className="h-4 w-4" />
-                    <span>Operations</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {canAccessModule("/super-admin") && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={isActive("/super-admin")}
+                    tooltip="Super Admin"
+                  >
+                    <Link to={"/super-admin" as any}>
+                      <Crown className="h-4 w-4" />
+                      <span>Super Admin</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
+              {canAccessModule("/admin") && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={isActive("/master")}
+                    tooltip="Operations"
+                  >
+                    <Link to={"/admin" as any}>
+                      <Activity className="h-4 w-4" />
+                      <span>Operations</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
