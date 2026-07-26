@@ -29,6 +29,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
+import { usePermissions } from "@/lib/use-permissions";
 import { useMemo, useReducer, useState } from "react";
 import {
   activeSodConflicts,
@@ -624,6 +625,11 @@ export function AuditConsole() {
    11. Roles — Okta Identity Governance
    ========================================================= */
 export function RolesConsole() {
+  const { can } = usePermissions();
+  const canEdit = can("roles.edit");
+  const canDelete = can("roles.delete");
+  const canApprove = can("roles.approve");
+  const canExport = can("roles.export");
   const [state, dispatch] = useReducer(rolesReducer, undefined, createInitialState);
   const [query, setQuery] = useState("");
   const [newRoleName, setNewRoleName] = useState("");
@@ -651,6 +657,10 @@ export function RolesConsole() {
   const matrixRoles = state.roles.slice(0, 5);
 
   const handleCreateRole = () => {
+    if (!canEdit) {
+      toast.error("Permission required", { description: "roles.edit" });
+      return;
+    }
     const name = newRoleName.trim();
     if (!name) {
       toast.error("Role name is required");
@@ -673,6 +683,10 @@ export function RolesConsole() {
   };
 
   const handleExportCsv = () => {
+    if (!canExport) {
+      toast.error("Permission required", { description: "roles.export" });
+      return;
+    }
     const csv = assignmentsToCsv(state);
     if (typeof window === "undefined") return;
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
@@ -753,7 +767,7 @@ export function RolesConsole() {
                     placeholder="Search role, scope, risk…"
                     className="h-8 w-56"
                   />
-                  <Button size="sm" variant="outline" onClick={handleExportCsv}>
+                  <Button size="sm" variant="outline" disabled={!canExport} onClick={handleExportCsv}>
                     <Download className="h-3.5 w-3.5 mr-1" />Export CSV
                   </Button>
                 </div>
@@ -792,6 +806,7 @@ export function RolesConsole() {
                         <Button
                           size="sm"
                           variant="ghost"
+                          disabled={!canEdit}
                           onClick={() => {
                             dispatch({ type: "clone_role", sourceId: r.id, name: `${r.name} (copy)` });
                             toast.success(`Cloned ${r.name}`);
@@ -802,7 +817,7 @@ export function RolesConsole() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          disabled={r.type === "System"}
+                          disabled={r.type === "System" || !canDelete}
                           onClick={() => {
                             dispatch({ type: "delete_role", roleId: r.id });
                             toast.success(`Deleted ${r.name}`);
@@ -862,7 +877,7 @@ export function RolesConsole() {
                     ))}
                   </select>
                 </div>
-                <Button className="w-full" onClick={handleCreateRole}>
+                <Button className="w-full" disabled={!canEdit} onClick={handleCreateRole}>
                   <Plus className="h-3.5 w-3.5 mr-1" />Create role
                 </Button>
               </div>
@@ -877,7 +892,7 @@ export function RolesConsole() {
 
         <TabsContent value="permissions" className="space-y-3">
           <Card><CardContent className="p-4 space-y-3">
-            <SectionHeader title="Permission catalog" right={<Button size="sm" variant="outline"><Plus className="h-3.5 w-3.5 mr-1" />New permission</Button>} />
+            <SectionHeader title="Permission catalog" right={<Button size="sm" variant="outline" disabled={!canEdit}><Plus className="h-3.5 w-3.5 mr-1" />New permission</Button>} />
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
               {permsByCategory.map((c) => (
                 <div key={c.cat} className="rounded-lg border border-border/60 p-3">
@@ -923,6 +938,7 @@ export function RolesConsole() {
                           <TableCell key={r.id} className="text-center">
                             <Checkbox
                               checked={checked}
+                              disabled={!canEdit}
                               aria-label={`${r.name} ${p.id}`}
                               onCheckedChange={(v) =>
                                 dispatch({ type: "set_grant", roleId: r.id, permId: p.id, granted: v === true })
@@ -1009,7 +1025,7 @@ export function RolesConsole() {
                       <Button
                         size="sm"
                         variant="ghost"
-                        disabled={r.status !== "pending"}
+                        disabled={r.status !== "pending" || !canApprove}
                         onClick={() => {
                           dispatch({ type: "decide_request", id: r.id, decision: "approve" });
                           toast.success(`Approved ${r.id}`);
@@ -1020,7 +1036,7 @@ export function RolesConsole() {
                       <Button
                         size="sm"
                         variant="ghost"
-                        disabled={r.status !== "pending"}
+                        disabled={r.status !== "pending" || !canApprove}
                         onClick={() => {
                           dispatch({ type: "decide_request", id: r.id, decision: "deny" });
                           toast.success(`Denied ${r.id}`);
@@ -1120,7 +1136,7 @@ export function RolesConsole() {
                       <Button
                         size="sm"
                         variant="ghost"
-                        disabled={s.resolved}
+                        disabled={s.resolved || !canApprove}
                         onClick={() => {
                           dispatch({ type: "resolve_sod", id: s.id });
                           toast.success("Conflict resolved");

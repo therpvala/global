@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { RequirePermission } from "@/components/permissions";
 import { SuperAdminCommand } from "@/components/specialty/SuperAdminCommand";
 
 export const Route = createFileRoute("/super-admin")({
@@ -8,5 +9,9 @@ export const Route = createFileRoute("/super-admin")({
       { name: "description", content: "Master operating control across the platform." },
     ],
   }),
-  component: () => <SuperAdminCommand />,
+  component: () => (
+    <RequirePermission permission="super-admin.view" label="the Super Admin command center">
+      <SuperAdminCommand />
+    </RequirePermission>
+  ),
 });
