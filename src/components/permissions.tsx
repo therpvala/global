@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { Lock, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
@@ -6,6 +6,22 @@ import { Button, type ButtonProps } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { usePermissions } from "@/lib/use-permissions";
+import { useAuth } from "@/lib/auth";
+import { recordPermEvent, type PermDecision, type PermSource } from "@/lib/perm-audit";
+
+/** Writes a permission decision into the audit trail for the current user. */
+export function usePermAudit() {
+  const { user, roles } = useAuth();
+  return (permission: string, decision: PermDecision, source: PermSource, detail?: string) =>
+    recordPermEvent({
+      actor: user?.email ?? "anonymous",
+      roles,
+      permission,
+      decision,
+      source,
+      detail,
+    });
+}
 
 /** Renders children only when the permission is granted. */
 export function Can({
@@ -60,7 +76,13 @@ export function RequirePermission({
   children: ReactNode;
 }) {
   const { can } = usePermissions();
-  if (!can(permission)) return <AccessDenied permission={permission} label={label} />;
+  const allowed = can(permission);
+  const audit = usePermAudit();
+  useEffect(() => {
+    audit(permission, allowed ? "granted" : "denied", "page", label ? `Opened ${label}` : undefined);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [permission, allowed, label]);
+  if (!allowed) return <AccessDenied permission={permission} label={label} />;
   return <>{children}</>;
 }
 
@@ -77,6 +99,7 @@ export function PermButton({
 }: ButtonProps & { permission: string; hideWhenDenied?: boolean }) {
   const { can } = usePermissions();
   const allowed = can(permission);
+  const audit = usePermAudit();
 
   if (!allowed && hideWhenDenied) return null;
 
@@ -90,9 +113,11 @@ export function PermButton({
         if (!allowed) {
           e.preventDefault();
           e.stopPropagation();
+          audit(permission, "denied", "action", "Blocked console action");
           toast.error("Permission required", { description: permission });
           return;
         }
+        audit(permission, "granted", "action", "Console action executed");
         onClick?.(e);
       }}
     >

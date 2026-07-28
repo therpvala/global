@@ -4,7 +4,7 @@ import {
   Building, GitBranch, WifiOff, ShieldCheck, BarChart3, FileText,
   Settings, Plug, ScrollText, Bell, MessageSquare, Calendar, Star,
   Clock, Bookmark, Zap, Target, Activity, TrendingUp, Search, Workflow,
-  User, Folder, FileCheck, Globe, Palette, Lock, KanbanSquare, Bug,
+  FlaskConical, FileSearch, User, Folder, FileCheck, Globe, Palette, Lock, KanbanSquare, Bug,
   Headphones, BookOpen, FileSignature, Brush, FileBarChart, Map,
   Smartphone, MonitorSmartphone, Wallet, Trophy, Network, Bot, Crown,
 } from "lucide-react";
@@ -87,6 +87,7 @@ export const modules: ModuleItem[] = [
   { title: "Devices", url: "/devices", icon: Smartphone, group: "Security", desc: "Registered devices" },
   { title: "Threats", url: "/threats", icon: Lock, group: "Security", desc: "Threat alerts" },
   { title: "Audit Trail", url: "/trail", icon: ScrollText, group: "Security", desc: "Change history" },
+  { title: "Permission Audit", url: "/permission-audit", icon: FileSearch, group: "Security", desc: "Allow/deny event log" },
 
   // System
   { title: "Profile", url: "/profile", icon: User, group: "System", desc: "Your profile" },
@@ -95,6 +96,7 @@ export const modules: ModuleItem[] = [
   { title: "Achievements", url: "/achievements", icon: Trophy, group: "System", desc: "Rewards · XP · trophies · ranks" },
   { title: "Theme", url: "/theme", icon: Palette, group: "System", desc: "Branding & theme" },
   { title: "Roles", url: "/roles", icon: ShieldCheck, group: "System", desc: "Permissions matrix" },
+  { title: "Role Simulator", url: "/role-simulator", icon: FlaskConical, group: "System", desc: "Test effective access" },
   { title: "Settings", url: "/settings", icon: Settings, group: "System", desc: "Full configuration" },
 ];
 
