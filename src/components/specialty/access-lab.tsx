@@ -311,11 +311,11 @@ export function PermissionAuditConsole() {
         subtitle="Every permission-granted and permission-denied decision raised by page gates, console actions and simulator probes."
         right={
           <>
-            <PermButton permission="audit.export" size="sm" variant="secondary" onClick={exportCsv}>
+            <PermButton permission="permission-audit.export" size="sm" variant="secondary" onClick={exportCsv}>
               <Download className="mr-1.5 h-3.5 w-3.5" />Export CSV
             </PermButton>
             <PermButton
-              permission="audit.delete"
+              permission="permission-audit.delete"
               size="sm"
               variant="secondary"
               onClick={() => { clearPermEvents(); toast.success("Audit log cleared"); }}

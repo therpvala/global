@@ -90,7 +90,7 @@ export const rolePolicies: Record<AppRole, RolePolicy> = {
       profile: CONTRIBUTOR,
       manager: READ_ONLY,
     },
-    deny: ["super-admin", "admin", "accountant", "account-manager", "roles", "threats", "api-manager"],
+    deny: ["super-admin", "admin", "accountant", "account-manager", "roles", "role-simulator", "permission-audit", "threats", "api-manager"],
   },
   accountant: {
     groups: [
@@ -104,7 +104,7 @@ export const rolePolicies: Record<AppRole, RolePolicy> = {
       accountant: READ_ONLY,
       profile: CONTRIBUTOR,
     },
-    deny: ["super-admin", "admin", "manager", "account-manager", "roles", "hrm", "recruitment", "threats", "sessions", "devices", "api-manager"],
+    deny: ["super-admin", "admin", "manager", "account-manager", "roles", "role-simulator", "permission-audit", "hrm", "recruitment", "threats", "sessions", "devices", "api-manager"],
   },
   account_manager: {
     groups: [
@@ -116,7 +116,7 @@ export const rolePolicies: Record<AppRole, RolePolicy> = {
       "account-manager": READ_ONLY,
       profile: CONTRIBUTOR,
     },
-    deny: ["super-admin", "admin", "manager", "accountant", "roles", "hrm", "recruitment", "threats", "sessions", "devices", "api-manager", "audit", "trail"],
+    deny: ["super-admin", "admin", "manager", "accountant", "roles", "role-simulator", "permission-audit", "hrm", "recruitment", "threats", "sessions", "devices", "api-manager", "audit", "trail"],
   },
   user: {
     groups: [{ groups: ["Overview"], actions: READ_ONLY }],
@@ -132,7 +132,7 @@ export const rolePolicies: Record<AppRole, RolePolicy> = {
       wallet: READ_ONLY,
       theme: READ_ONLY,
     },
-    deny: ["super-admin", "admin", "manager", "accountant", "account-manager", "roles", "audit", "trail", "threats", "sessions", "devices", "api-manager"],
+    deny: ["super-admin", "admin", "manager", "accountant", "account-manager", "roles", "role-simulator", "permission-audit", "audit", "trail", "threats", "sessions", "devices", "api-manager"],
   },
 };
 
