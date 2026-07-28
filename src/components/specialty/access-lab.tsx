@@ -97,10 +97,10 @@ export function RoleSimulatorConsole() {
   }, [roles]);
 
   const kpis: Kpi[] = [
-    { label: "Effective grants", value: String(totals.allowed), delta: `${modules.length * PERM_ACTIONS.length} checks`, trend: "up", series: [4, 6, 5, 8, 9, 11, 12] },
-    { label: "Denied checks", value: String(totals.denied), delta: "policy enforced", trend: "down", series: [12, 10, 9, 8, 6, 5, 4] },
-    { label: "Visible modules", value: `${totals.visible}/${modules.length}`, delta: "sidebar scope", trend: "up", series: [3, 5, 6, 7, 7, 8, 9] },
-    { label: "Active roles", value: String(roles.length), delta: roles.join(" + "), trend: "up", series: [1, 1, 2, 2, 2, 2, 2] },
+    { label: "Effective grants", value: String(totals.allowed), delta: `${modules.length * PERM_ACTIONS.length} checks`, tone: "up", spark: [4, 6, 5, 8, 9, 11, 12] },
+    { label: "Denied checks", value: String(totals.denied), delta: "policy enforced", tone: "down", spark: [12, 10, 9, 8, 6, 5, 4] },
+    { label: "Visible modules", value: `${totals.visible}/${modules.length}`, delta: "sidebar scope", tone: "up", spark: [3, 5, 6, 7, 7, 8, 9] },
+    { label: "Active roles", value: String(roles.length), delta: roles.join(" + "), tone: "up", spark: [1, 1, 2, 2, 2, 2, 2] },
   ];
 
   const probeResult = can(roles, probe.trim() || "*.view");
@@ -291,10 +291,10 @@ export function PermissionAuditConsole() {
 
   const denied = events.filter((e) => e.decision === "denied").length;
   const kpis: Kpi[] = [
-    { label: "Events captured", value: String(events.length), delta: "session + history", trend: "up", series: [2, 4, 6, 7, 9, 11, 14] },
-    { label: "Denied", value: String(denied), delta: "blocked attempts", trend: "down", series: [6, 5, 5, 4, 4, 3, 3] },
-    { label: "Granted", value: String(events.length - denied), delta: "authorized actions", trend: "up", series: [3, 4, 6, 6, 8, 9, 10] },
-    { label: "Unique actors", value: String(new Set(events.map((e) => e.actor)).size), delta: "identities seen", trend: "up", series: [1, 2, 2, 3, 4, 5, 6] },
+    { label: "Events captured", value: String(events.length), delta: "session + history", tone: "up", spark: [2, 4, 6, 7, 9, 11, 14] },
+    { label: "Denied", value: String(denied), delta: "blocked attempts", tone: "down", spark: [6, 5, 5, 4, 4, 3, 3] },
+    { label: "Granted", value: String(events.length - denied), delta: "authorized actions", tone: "up", spark: [3, 4, 6, 6, 8, 9, 10] },
+    { label: "Unique actors", value: String(new Set(events.map((e) => e.actor)).size), delta: "identities seen", tone: "up", spark: [1, 2, 2, 3, 4, 5, 6] },
   ];
 
   const exportCsv = () => {
