@@ -155,7 +155,9 @@ export function RoleSimulatorConsole() {
             <div className="space-y-1.5">
               <Label className="text-xs">Subject</Label>
               <Select value={subject} onValueChange={(v) => { setSubject(v); setCustomRoles([]); }}>
-                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="h-9">
+                  <SelectValue>{person ? `${person.name} · ${person.email}` : "Select subject"}</SelectValue>
+                </SelectTrigger>
                 <SelectContent>
                   {DIRECTORY.map((d) => (
                     <SelectItem key={d.email} value={d.email}>{d.name} · {d.email}</SelectItem>
