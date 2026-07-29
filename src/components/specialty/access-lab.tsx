@@ -512,8 +512,8 @@ export function PermissionAuditConsole() {
                 <YAxis tick={{ fontSize: 10 }} allowDecimals={false} width={28} />
                 <RTooltip contentStyle={TOOLTIP_STYLE} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Line type="monotone" dataKey="granted" stroke="var(--success)" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="denied" stroke="var(--destructive)" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="granted" stroke="var(--success)" strokeWidth={2} dot={false} isAnimationActive={false} />
+                <Line type="monotone" dataKey="denied" stroke="var(--destructive)" strokeWidth={2} dot={false} isAnimationActive={false} />
               </LineChart>
             </ChartCard>
             <ChartCard title="Severity mix" desc="Risk-weighted by action, module group and outcome">
@@ -536,8 +536,8 @@ export function PermissionAuditConsole() {
                 <YAxis type="category" dataKey="key" tick={{ fontSize: 10 }} width={90} />
                 <RTooltip contentStyle={TOOLTIP_STYLE} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Bar dataKey="granted" stackId="a" fill="var(--success)" radius={[0, 0, 0, 0]} />
-                <Bar dataKey="denied" stackId="a" fill="var(--destructive)" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="granted" stackId="a" fill="var(--success)" radius={[0, 0, 0, 0]} isAnimationActive={false} />
+                <Bar dataKey="denied" stackId="a" fill="var(--destructive)" radius={[0, 4, 4, 0]} isAnimationActive={false} />
               </BarChart>
             </ChartCard>
             <ChartCard title="By role" desc="Which role sets trigger denials">
@@ -547,8 +547,8 @@ export function PermissionAuditConsole() {
                 <YAxis tick={{ fontSize: 10 }} allowDecimals={false} width={28} />
                 <RTooltip contentStyle={TOOLTIP_STYLE} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Bar dataKey="granted" stackId="a" fill="var(--success)" />
-                <Bar dataKey="denied" stackId="a" fill="var(--destructive)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="granted" stackId="a" fill="var(--success)" isAnimationActive={false} />
+                <Bar dataKey="denied" stackId="a" fill="var(--destructive)" radius={[4, 4, 0, 0]} isAnimationActive={false} />
               </BarChart>
             </ChartCard>
             <ChartCard title="By action" desc="Action-level allow/deny distribution" className="lg:col-span-2">
@@ -558,8 +558,8 @@ export function PermissionAuditConsole() {
                 <YAxis tick={{ fontSize: 10 }} allowDecimals={false} width={28} />
                 <RTooltip contentStyle={TOOLTIP_STYLE} />
                 <Legend wrapperStyle={{ fontSize: 11 }} />
-                <Bar dataKey="granted" stackId="a" fill="var(--success)" />
-                <Bar dataKey="denied" stackId="a" fill="var(--destructive)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="granted" stackId="a" fill="var(--success)" isAnimationActive={false} />
+                <Bar dataKey="denied" stackId="a" fill="var(--destructive)" radius={[4, 4, 0, 0]} isAnimationActive={false} />
               </BarChart>
             </ChartCard>
           </div>
