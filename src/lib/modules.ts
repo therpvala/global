@@ -97,6 +97,7 @@ export const modules: ModuleItem[] = [
   { title: "Theme", url: "/theme", icon: Palette, group: "System", desc: "Branding & theme" },
   { title: "Roles", url: "/roles", icon: ShieldCheck, group: "System", desc: "Permissions matrix" },
   { title: "Role Simulator", url: "/role-simulator", icon: FlaskConical, group: "System", desc: "Test effective access" },
+  { title: "Role Comparison", url: "/role-compare", icon: FileSearch, group: "System", desc: "Diff grants between roles" },
   { title: "Settings", url: "/settings", icon: Settings, group: "System", desc: "Full configuration" },
 ];
 

@@ -47,6 +47,7 @@ import {
   InventoryConsole, ManufacturingConsole,
 } from "@/components/specialty/wave4";
 import { RoleSimulatorConsole, PermissionAuditConsole } from "@/components/specialty/access-lab";
+import { RoleComparisonConsole } from "@/components/specialty/role-compare";
 import { AchievementsConsole } from "@/components/specialty/AchievementsConsole";
 import { RequirePermission } from "@/components/permissions";
 import { moduleKeyFromUrl } from "@/lib/permissions";
@@ -111,6 +112,7 @@ const specialty: Record<string, ComponentType> = {
   "/achievements": AchievementsConsole,
   "/role-simulator": RoleSimulatorConsole,
   "/permission-audit": PermissionAuditConsole,
+  "/role-compare": RoleComparisonConsole,
 };
 
 export const Route = createFileRoute("/$")({

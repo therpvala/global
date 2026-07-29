@@ -4,8 +4,12 @@
  */
 import { useMemo, useState, useSyncExternalStore } from "react";
 import {
-  Check, Download, FlaskConical, ScrollText, Search, ShieldAlert, ShieldCheck, Trash2, X,
+  BarChart3, Check, Download, FileText, FlaskConical, ScrollText, Search, ShieldAlert, ShieldCheck, Trash2, X,
 } from "lucide-react";
+import {
+  Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart,
+  ResponsiveContainer, Tooltip as RTooltip, XAxis, YAxis,
+} from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,10 +32,15 @@ import {
   clearPermEvents, downloadCsv, getPermEvents, getPermEventsServer, permEventsToCsv,
   recordPermEvent, subscribePermEvents, type PermEvent,
 } from "@/lib/perm-audit";
+import {
+  SEVERITIES, TIME_RANGES, countByAction, countByModule, countByRole, countBySeverity,
+  severityOf, severityToneClass, timelineSeries, withinRange, type PermSeverity, type TimeRange,
+} from "@/lib/perm-severity";
+import { printReportPdf } from "@/lib/perm-report";
 
-const ROLES: AppRole[] = ["super_admin", "admin", "manager", "accountant", "account_manager", "user"];
+export const ROLES: AppRole[] = ["super_admin", "admin", "manager", "accountant", "account_manager", "user"];
 
-const DIRECTORY: { email: string; name: string; roles: AppRole[] }[] = [
+export const DIRECTORY: { email: string; name: string; roles: AppRole[] }[] = [
   { email: "admin@vala.app", name: "Ava Admin", roles: ["admin"] },
   { email: "root@vala.app", name: "Root Owner", roles: ["super_admin"] },
   { email: "nina@vala.app", name: "Nina Ops", roles: ["manager"] },
@@ -41,7 +50,7 @@ const DIRECTORY: { email: string; name: string; roles: AppRole[] }[] = [
   { email: "dual@vala.app", name: "Dana Dual-hat", roles: ["accountant", "account_manager"] },
 ];
 
-function Hero({ icon: Icon, eyebrow, title, subtitle, right }: {
+export function Hero({ icon: Icon, eyebrow, title, subtitle, right }: {
   icon: any; eyebrow: string; title: string; subtitle: string; right?: React.ReactNode;
 }) {
   return (
@@ -135,6 +144,36 @@ export function RoleSimulatorConsole() {
     toast.success("Simulation exported", { description: `${rows.length} modules` });
   };
 
+  const exportPdf = () => {
+    printReportPdf({
+      title: "Effective Access Report",
+      subtitle: `Simulated identity: ${person ? `${person.name} (${person.email})` : subject}`,
+      meta: [
+        { label: "Roles evaluated", value: roles.join(" + ") },
+        { label: "Modules", value: String(rows.length) },
+        { label: "Actions", value: PERM_ACTIONS.join(", ") },
+        { label: "Generated", value: new Date().toLocaleString() },
+      ],
+      summary: [
+        { label: "Effective grants", value: String(totals.allowed) },
+        { label: "Denied checks", value: String(totals.denied) },
+        { label: "Visible modules", value: `${totals.visible}/${modules.length}` },
+        { label: "Coverage", value: `${Math.round((totals.allowed / (modules.length * PERM_ACTIONS.length)) * 100)}%` },
+      ],
+      tables: [
+        {
+          title: "Module × action matrix",
+          note: "allow = permission granted by the effective role set; deny = blocked by policy.",
+          head: ["Module", "Key", "Group", ...PERM_ACTIONS.map((a) => a[0].toUpperCase() + a.slice(1))],
+          rows: rows.map((r) => [
+            r.module.title, r.key, r.module.group, ...r.grid.map((g) => (g.allowed ? "allow" : "deny")),
+          ]),
+        },
+      ],
+    });
+    toast.success("Report ready", { description: "Choose “Save as PDF” in the print dialog." });
+  };
+
   return (
     <div className="space-y-4">
       <Hero
@@ -143,9 +182,14 @@ export function RoleSimulatorConsole() {
         title="Role Simulator"
         subtitle="Pick a user or compose a role set and see exactly which module actions resolve to allow or deny across the entire app."
         right={
-          <Button size="sm" variant="secondary" onClick={exportMatrix}>
-            <Download className="mr-1.5 h-3.5 w-3.5" />Export simulation
-          </Button>
+          <>
+            <Button size="sm" variant="secondary" onClick={exportMatrix}>
+              <Download className="mr-1.5 h-3.5 w-3.5" />Export CSV
+            </Button>
+            <PermButton permission="role-simulator.export" size="sm" variant="secondary" onClick={exportPdf}>
+              <FileText className="mr-1.5 h-3.5 w-3.5" />Export PDF report
+            </PermButton>
+          </>
         }
       />
 
@@ -276,32 +320,103 @@ export function PermissionAuditConsole() {
   const [decision, setDecision] = useState<string>("all");
   const [source, setSource] = useState<string>("all");
   const [role, setRole] = useState<string>("all");
+  const [severity, setSeverity] = useState<string>("all");
+  const [range, setRange] = useState<TimeRange>("7d");
   const [q, setQ] = useState("");
+
+  const inRange = useMemo(() => events.filter((e) => withinRange(e.ts, range)), [events, range]);
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
-    return events.filter((e) =>
+    return inRange.filter((e) =>
       (decision === "all" || e.decision === decision) &&
       (source === "all" || e.source === source) &&
       (role === "all" || e.roles.includes(role as AppRole)) &&
+      (severity === "all" || severityOf(e) === severity) &&
       (!needle ||
         e.actor.toLowerCase().includes(needle) ||
         e.permission.toLowerCase().includes(needle) ||
         (e.detail ?? "").toLowerCase().includes(needle)),
     );
-  }, [events, decision, source, role, q]);
+  }, [inRange, decision, source, role, severity, q]);
 
-  const denied = events.filter((e) => e.decision === "denied").length;
+  const byModule = useMemo(() => countByModule(filtered).slice(0, 10), [filtered]);
+  const byRole = useMemo(() => countByRole(filtered), [filtered]);
+  const byAction = useMemo(() => countByAction(filtered), [filtered]);
+  const bySeverity = useMemo(() => countBySeverity(filtered), [filtered]);
+  const timeline = useMemo(() => timelineSeries(filtered, range), [filtered, range]);
+
+  const denied = filtered.filter((e) => e.decision === "denied").length;
+  const critical = filtered.filter((e) => severityOf(e) === "critical").length;
   const kpis: Kpi[] = [
-    { label: "Events captured", value: String(events.length), delta: "session + history", tone: "up", spark: [2, 4, 6, 7, 9, 11, 14] },
-    { label: "Denied", value: String(denied), delta: "blocked attempts", tone: "down", spark: [6, 5, 5, 4, 4, 3, 3] },
-    { label: "Granted", value: String(events.length - denied), delta: "authorized actions", tone: "up", spark: [3, 4, 6, 6, 8, 9, 10] },
-    { label: "Unique actors", value: String(new Set(events.map((e) => e.actor)).size), delta: "identities seen", tone: "up", spark: [1, 2, 2, 3, 4, 5, 6] },
+    { label: "Events in range", value: String(filtered.length), delta: TIME_RANGES.find((t) => t.value === range)?.label ?? "", tone: "up", spark: timeline.slice(-7).map((t) => t.total || 0) },
+    { label: "Denied", value: String(denied), delta: "blocked attempts", tone: "down", spark: timeline.slice(-7).map((t) => t.denied || 0) },
+    { label: "Granted", value: String(filtered.length - denied), delta: "authorized actions", tone: "up", spark: timeline.slice(-7).map((t) => t.granted || 0) },
+    { label: "Critical severity", value: String(critical), delta: "high blast radius", tone: critical ? "down" : "up", spark: [1, 2, 1, 3, 2, 4, critical] },
   ];
 
   const exportCsv = () => {
-    downloadCsv(`permission-audit-${new Date().toISOString().slice(0, 10)}.csv`, permEventsToCsv(filtered));
+    const csv = permEventsToCsv(filtered)
+      .split("\n")
+      .map((line, i) => (i === 0 ? `${line},severity` : line))
+      .join("\n");
+    const withSeverity = csv
+      .split("\n")
+      .map((line, i) => (i === 0 ? line : `${line},"${severityOf(filtered[i - 1])}"`))
+      .join("\n");
+    downloadCsv(`permission-audit-${new Date().toISOString().slice(0, 10)}.csv`, withSeverity);
     toast.success("Audit log exported", { description: `${filtered.length} events` });
+  };
+
+  const exportPdf = () => {
+    printReportPdf({
+      title: "Permission Audit Report",
+      subtitle: "Allow / deny decisions captured by page gates, console actions and simulator probes.",
+      meta: [
+        { label: "Time range", value: TIME_RANGES.find((t) => t.value === range)?.label ?? range },
+        { label: "Filters", value: [decision, source, role, severity].map((v) => v || "all").join(" / ") },
+        { label: "Events", value: String(filtered.length) },
+        { label: "Generated", value: new Date().toLocaleString() },
+      ],
+      summary: [
+        { label: "Total", value: String(filtered.length) },
+        { label: "Denied", value: String(denied) },
+        { label: "Granted", value: String(filtered.length - denied) },
+        { label: "Critical", value: String(critical) },
+      ],
+      tables: [
+        {
+          title: "Severity breakdown",
+          head: ["Severity", "Granted", "Denied", "Total"],
+          rows: bySeverity.map((r) => [r.key, r.granted, r.denied, r.total]),
+        },
+        {
+          title: "Top modules",
+          head: ["Module", "Granted", "Denied", "Total"],
+          rows: byModule.map((r) => [r.key, r.granted, r.denied, r.total]),
+        },
+        {
+          title: "By role",
+          head: ["Role", "Granted", "Denied", "Total"],
+          rows: byRole.map((r) => [r.key, r.granted, r.denied, r.total]),
+        },
+        {
+          title: "By action",
+          head: ["Action", "Granted", "Denied", "Total"],
+          rows: byAction.map((r) => [r.key, r.granted, r.denied, r.total]),
+        },
+        {
+          title: "Event trail",
+          head: ["Time", "Actor", "Roles", "Permission", "Severity", "Source", "Decision", "Detail"],
+          rows: filtered.slice(0, 400).map((e) => [
+            new Date(e.ts).toLocaleString(), e.actor, e.roles.join(" "), e.permission,
+            severityOf(e), e.source, e.decision, e.detail ?? "—",
+          ]),
+          note: filtered.length > 400 ? "Showing the 400 most recent events." : undefined,
+        },
+      ],
+    });
+    toast.success("Report ready", { description: "Choose “Save as PDF” in the print dialog." });
   };
 
   return (
@@ -315,6 +430,9 @@ export function PermissionAuditConsole() {
           <>
             <PermButton permission="permission-audit.export" size="sm" variant="secondary" onClick={exportCsv}>
               <Download className="mr-1.5 h-3.5 w-3.5" />Export CSV
+            </PermButton>
+            <PermButton permission="permission-audit.export" size="sm" variant="secondary" onClick={exportPdf}>
+              <FileText className="mr-1.5 h-3.5 w-3.5" />Export PDF report
             </PermButton>
             <PermButton
               permission="permission-audit.delete"
@@ -361,15 +479,91 @@ export function PermissionAuditConsole() {
               {ROLES.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
             </SelectContent>
           </Select>
+          <Select value={severity} onValueChange={setSeverity}>
+            <SelectTrigger className="h-9 w-[160px]"><SelectValue placeholder="Severity" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All severities</SelectItem>
+              {SEVERITIES.map((s) => <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <Select value={range} onValueChange={(v) => setRange(v as TimeRange)}>
+            <SelectTrigger className="h-9 w-[160px]"><SelectValue placeholder="Time range" /></SelectTrigger>
+            <SelectContent>
+              {TIME_RANGES.map((t) => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
+            </SelectContent>
+          </Select>
           <Badge variant="outline" className="h-8 px-3 font-normal">{filtered.length} events</Badge>
         </CardContent>
       </Card>
 
-      <Tabs defaultValue="all">
+      <Tabs defaultValue="summary">
         <TabsList>
+          <TabsTrigger value="summary"><BarChart3 className="mr-1.5 h-3.5 w-3.5" />Summary</TabsTrigger>
           <TabsTrigger value="all">Trail</TabsTrigger>
           <TabsTrigger value="denied">Denials</TabsTrigger>
         </TabsList>
+        <TabsContent value="summary" className="mt-3 space-y-4">
+          <SectionHeader title="Decision analytics" desc="Granted vs denied volume by module, role, action, severity and time." />
+          <div className="grid gap-4 lg:grid-cols-2">
+            <ChartCard title="Decisions over time" desc={TIME_RANGES.find((t) => t.value === range)?.label}>
+              <LineChart data={timeline}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
+                <XAxis dataKey="key" tick={{ fontSize: 10 }} interval="preserveStartEnd" />
+                <YAxis tick={{ fontSize: 10 }} allowDecimals={false} width={28} />
+                <RTooltip contentStyle={TOOLTIP_STYLE} />
+                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <Line type="monotone" dataKey="granted" stroke="var(--success)" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="denied" stroke="var(--destructive)" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ChartCard>
+            <ChartCard title="Severity mix" desc="Risk-weighted by action, module group and outcome">
+              <BarChart data={bySeverity} layout="vertical" margin={{ left: 16 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
+                <XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} />
+                <YAxis type="category" dataKey="key" tick={{ fontSize: 10, textTransform: "capitalize" }} width={70} />
+                <RTooltip contentStyle={TOOLTIP_STYLE} />
+                <Bar dataKey="total" radius={[0, 4, 4, 0]} barSize={22}>
+                  {bySeverity.map((s) => (
+                    <Cell key={s.key} fill={SEVERITY_FILL[s.key as PermSeverity] ?? "var(--muted-foreground)"} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ChartCard>
+            <ChartCard title="Top modules" desc="Highest decision volume">
+              <BarChart data={byModule} layout="vertical" margin={{ left: 24 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
+                <XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} />
+                <YAxis type="category" dataKey="key" tick={{ fontSize: 10 }} width={90} />
+                <RTooltip contentStyle={TOOLTIP_STYLE} />
+                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <Bar dataKey="granted" stackId="a" fill="var(--success)" radius={[0, 0, 0, 0]} />
+                <Bar dataKey="denied" stackId="a" fill="var(--destructive)" radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ChartCard>
+            <ChartCard title="By role" desc="Which role sets trigger denials">
+              <BarChart data={byRole}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
+                <XAxis dataKey="key" tick={{ fontSize: 10 }} />
+                <YAxis tick={{ fontSize: 10 }} allowDecimals={false} width={28} />
+                <RTooltip contentStyle={TOOLTIP_STYLE} />
+                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <Bar dataKey="granted" stackId="a" fill="var(--success)" />
+                <Bar dataKey="denied" stackId="a" fill="var(--destructive)" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ChartCard>
+            <ChartCard title="By action" desc="Action-level allow/deny distribution" className="lg:col-span-2">
+              <BarChart data={byAction}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
+                <XAxis dataKey="key" tick={{ fontSize: 10 }} />
+                <YAxis tick={{ fontSize: 10 }} allowDecimals={false} width={28} />
+                <RTooltip contentStyle={TOOLTIP_STYLE} />
+                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <Bar dataKey="granted" stackId="a" fill="var(--success)" />
+                <Bar dataKey="denied" stackId="a" fill="var(--destructive)" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ChartCard>
+          </div>
+        </TabsContent>
         <TabsContent value="all" className="mt-3">
           <EventTable rows={filtered} />
         </TabsContent>
@@ -378,6 +572,39 @@ export function PermissionAuditConsole() {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+const TOOLTIP_STYLE = {
+  background: "var(--popover)",
+  border: "1px solid var(--border)",
+  borderRadius: 8,
+  fontSize: 11,
+  color: "var(--popover-foreground)",
+} as const;
+
+const SEVERITY_FILL: Record<PermSeverity, string> = {
+  critical: "var(--destructive)",
+  high: "var(--warning)",
+  medium: "var(--primary)",
+  low: "var(--muted-foreground)",
+};
+
+export function ChartCard({ title, desc, className, children }: {
+  title: string; desc?: string; className?: string; children: React.ReactElement;
+}) {
+  return (
+    <Card className={className}>
+      <CardContent className="p-4">
+        <div className="mb-2">
+          <div className="text-sm font-semibold">{title}</div>
+          {desc && <div className="text-[11px] text-muted-foreground">{desc}</div>}
+        </div>
+        <div className="h-[220px] w-full">
+          <ResponsiveContainer width="100%" height="100%">{children}</ResponsiveContainer>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -392,6 +619,7 @@ function EventTable({ rows }: { rows: PermEvent[] }) {
               <TableHead>Actor</TableHead>
               <TableHead>Roles</TableHead>
               <TableHead>Permission</TableHead>
+              <TableHead>Severity</TableHead>
               <TableHead>Source</TableHead>
               <TableHead>Decision</TableHead>
               <TableHead>Detail</TableHead>
@@ -406,6 +634,11 @@ function EventTable({ rows }: { rows: PermEvent[] }) {
                 <TableCell className="text-sm font-medium">{e.actor}</TableCell>
                 <TableCell className="text-xs text-muted-foreground">{e.roles.join(", ") || "—"}</TableCell>
                 <TableCell><code className="rounded bg-muted px-1 py-0.5 text-xs">{e.permission}</code></TableCell>
+                <TableCell>
+                  <Badge variant="outline" className={`capitalize font-normal ${severityToneClass[severityOf(e)]}`}>
+                    {severityOf(e)}
+                  </Badge>
+                </TableCell>
                 <TableCell className="text-xs capitalize text-muted-foreground">{e.source}</TableCell>
                 <TableCell>
                   <Badge
@@ -424,7 +657,7 @@ function EventTable({ rows }: { rows: PermEvent[] }) {
               </TableRow>
             ))}
             {rows.length === 0 && (
-              <TableRow><TableCell colSpan={7} className="py-10 text-center text-sm text-muted-foreground">No permission events match these filters.</TableCell></TableRow>
+              <TableRow><TableCell colSpan={8} className="py-10 text-center text-sm text-muted-foreground">No permission events match these filters.</TableCell></TableRow>
             )}
           </TableBody>
         </Table>
