@@ -7,7 +7,7 @@ import {
   BarChart3, Check, Download, FileText, FlaskConical, ScrollText, Search, ShieldAlert, ShieldCheck, Trash2, X,
 } from "lucide-react";
 import {
-  Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart,
+  Bar, BarChart, CartesianGrid, Cell, Legend, Line, LineChart,
   ResponsiveContainer, Tooltip as RTooltip, XAxis, YAxis,
 } from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
@@ -520,7 +520,7 @@ export function PermissionAuditConsole() {
               <BarChart data={bySeverity} layout="vertical" margin={{ left: 16 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
                 <XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} />
-                <YAxis type="category" dataKey="key" tick={{ fontSize: 10, textTransform: "capitalize" }} width={70} />
+                <YAxis type="category" dataKey="key" tick={{ fontSize: 10 }} width={70} />
                 <RTooltip contentStyle={TOOLTIP_STYLE} />
                 <Bar dataKey="total" radius={[0, 4, 4, 0]} barSize={22}>
                   {bySeverity.map((s) => (
