@@ -522,7 +522,7 @@ export function PermissionAuditConsole() {
                 <XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} />
                 <YAxis type="category" dataKey="key" tick={{ fontSize: 10 }} width={70} />
                 <RTooltip contentStyle={TOOLTIP_STYLE} />
-                <Bar dataKey="total" radius={[0, 4, 4, 0]} barSize={22}>
+                <Bar dataKey="total" radius={[0, 4, 4, 0]} barSize={22} isAnimationActive={false}>
                   {bySeverity.map((s) => (
                     <Cell key={s.key} fill={SEVERITY_FILL[s.key as PermSeverity] ?? "var(--muted-foreground)"} />
                   ))}
