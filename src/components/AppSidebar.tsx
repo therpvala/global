@@ -73,11 +73,6 @@ export function AppSidebar() {
 
   const explained = useMemo(() => explainAllModules(roles, q), [roles, q]);
   const summary = useMemo(() => visibilitySummary(roles, q), [roles, q]);
-  const explainFor = useMemo(() => {
-    const map = new Map<string, (typeof explained)[number]>();
-    for (const e of explained) map.set(e.module.url, e);
-    return map;
-  }, [explained]);
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
