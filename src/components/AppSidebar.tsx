@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Sparkles, Home, Activity, Search, ChevronRight, Crown } from "lucide-react";
+import { Sparkles, Home, Activity, Search, ChevronRight, Crown, Bug, CheckCircle2, XCircle, EyeOff } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -23,8 +23,11 @@ import { Input } from "@/components/ui/input";
 import { modules, groups } from "@/lib/modules";
 import { SYSTEM_IDENTITY } from "@/lib/system-identity";
 import { usePermissions } from "@/lib/use-permissions";
+import { useAuth } from "@/lib/auth";
+import { explainAllModules, visibilitySummary } from "@/lib/sidebar-debug";
 
 const GROUP_STATE_KEY = "vala.sidebar.groups.v1";
+const DEBUG_KEY = "vala.sidebar.debug.v1";
 
 function loadGroupState(): Record<string, boolean> {
   if (typeof window === "undefined") return {};
@@ -39,13 +42,18 @@ export function AppSidebar() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { state } = useSidebar();
   const { canAccessModule } = usePermissions();
+  const { roles } = useAuth();
   const collapsed = state === "collapsed";
   const [q, setQ] = useState("");
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
   const [hydrated, setHydrated] = useState(false);
+  const [debug, setDebug] = useState(false);
 
   useEffect(() => {
     setOpenGroups(loadGroupState());
+    try {
+      setDebug(localStorage.getItem(DEBUG_KEY) === "1");
+    } catch {}
     setHydrated(true);
   }, []);
 
@@ -55,6 +63,16 @@ export function AppSidebar() {
       localStorage.setItem(GROUP_STATE_KEY, JSON.stringify(openGroups));
     } catch {}
   }, [openGroups, hydrated]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    try {
+      localStorage.setItem(DEBUG_KEY, debug ? "1" : "0");
+    } catch {}
+  }, [debug, hydrated]);
+
+  const explained = useMemo(() => explainAllModules(roles, q), [roles, q]);
+  const summary = useMemo(() => visibilitySummary(roles, q), [roles, q]);
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
@@ -217,8 +235,45 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border">
-        <div className="px-2 py-2 text-[10px] text-muted-foreground group-data-[collapsible=icon]:hidden">
-          {SYSTEM_IDENTITY} · {modules.length} modules
+        {debug && !collapsed && (
+          <div className="mx-2 mb-2 max-h-64 overflow-auto rounded-md border border-sidebar-border bg-sidebar-accent/30 p-2 text-[10px] leading-tight">
+            <div className="mb-1 font-semibold uppercase tracking-wider text-muted-foreground">
+              Visibility debug · roles: {roles.join(", ") || "none"}
+            </div>
+            <div className="mb-2 text-muted-foreground">
+              {summary.visible} shown · {summary.denied} denied · {summary.filtered} filtered of {summary.total}
+            </div>
+            <ul className="space-y-1">
+              {explained.map((e) => (
+                <li key={e.module.url} className="flex gap-1.5">
+                  {e.visible ? (
+                    <CheckCircle2 className="mt-0.5 h-3 w-3 shrink-0 text-emerald-500" />
+                  ) : e.code === "filtered-by-search" ? (
+                    <EyeOff className="mt-0.5 h-3 w-3 shrink-0 text-muted-foreground" />
+                  ) : (
+                    <XCircle className="mt-0.5 h-3 w-3 shrink-0 text-destructive" />
+                  )}
+                  <span>
+                    <span className="font-medium">{e.module.title}</span>{" "}
+                    <span className="text-muted-foreground">— {e.reason}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <div className="flex items-center justify-between gap-2 px-2 py-2 text-[10px] text-muted-foreground group-data-[collapsible=icon]:hidden">
+          <span>
+            {SYSTEM_IDENTITY} · {modules.length} modules
+          </span>
+          <button
+            type="button"
+            onClick={() => setDebug((d) => !d)}
+            aria-pressed={debug}
+            className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 hover:text-foreground ${debug ? "bg-primary/15 text-primary" : ""}`}
+          >
+            <Bug className="h-3 w-3" /> Debug
+          </button>
         </div>
       </SidebarFooter>
     </Sidebar>

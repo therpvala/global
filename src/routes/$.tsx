@@ -1,6 +1,6 @@
 import type { ComponentType } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { modules } from "@/lib/modules";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+import { resolveModulePath, normalizeModulePath } from "@/lib/module-resolver";
 import { ModulePage } from "@/components/ModulePage";
 import { Button } from "@/components/ui/button";
 import { SuperAdminCommand } from "@/components/specialty/SuperAdminCommand";
@@ -116,15 +116,29 @@ const specialty: Record<string, ComponentType> = {
 };
 
 export const Route = createFileRoute("/$")({
+  beforeLoad: ({ params }) => {
+    const path = "/" + ((params as { _splat?: string })._splat ?? "");
+    if (specialty[path]) return;
+    const resolution = resolveModulePath(path);
+    if (resolution.status === "redirect") {
+      throw redirect({
+        to: "/$",
+        params: { _splat: resolution.target.replace(/^\//, "") },
+        replace: true,
+      });
+    }
+  },
   component: SplatRoute,
 });
 
 function SplatRoute() {
   const params = Route.useParams() as { _splat?: string };
   const path = "/" + (params._splat ?? "");
-  const Specialty = specialty[path];
-  const module = modules.find((m) => m.url === path || path.startsWith(m.url + "/"));
-  const key = moduleKeyFromUrl(path);
+  const resolution = resolveModulePath(path);
+  const module = resolution.module;
+  const canonical = module ? normalizeModulePath(module.url) : normalizeModulePath(path);
+  const Specialty = specialty[canonical] ?? specialty[path];
+  const key = moduleKeyFromUrl(canonical);
   const permission = `${key}.view`;
 
   if (Specialty) {
