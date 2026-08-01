@@ -123,10 +123,11 @@ function SplatRoute() {
   const params = Route.useParams() as { _splat?: string };
   const path = "/" + (params._splat ?? "");
   const resolution = resolveModulePath(path);
+  const directSpecialty = specialty[path];
 
   // Known-but-non-canonical path (alias, casing, trailing slash, bare slug):
   // send the user to the canonical module route so the workspace always opens.
-  if (resolution.status === "redirect") {
+  if (resolution.status === "redirect" && !directSpecialty) {
     return <Navigate to={resolution.target as never} replace />;
   }
 
