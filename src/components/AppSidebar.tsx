@@ -41,13 +41,20 @@ export function AppSidebar() {
   const { canAccessModule } = usePermissions();
   const collapsed = state === "collapsed";
   const [q, setQ] = useState("");
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => loadGroupState());
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
+    setOpenGroups(loadGroupState());
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
     try {
       localStorage.setItem(GROUP_STATE_KEY, JSON.stringify(openGroups));
     } catch {}
-  }, [openGroups]);
+  }, [openGroups, hydrated]);
 
   const filtered = useMemo(() => {
     const needle = q.trim().toLowerCase();
