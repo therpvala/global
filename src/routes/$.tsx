@@ -1,5 +1,5 @@
 import type { ComponentType } from "react";
-import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { resolveModulePath, normalizeModulePath } from "@/lib/module-resolver";
 import { ModulePage } from "@/components/ModulePage";
 import { Button } from "@/components/ui/button";
@@ -116,6 +116,18 @@ const specialty: Record<string, ComponentType> = {
 };
 
 export const Route = createFileRoute("/$")({
+  beforeLoad: ({ params }) => {
+    const path = "/" + ((params as { _splat?: string })._splat ?? "");
+    if (specialty[path]) return;
+    const resolution = resolveModulePath(path);
+    if (resolution.status === "redirect") {
+      throw redirect({
+        to: "/$",
+        params: { _splat: resolution.target.replace(/^\//, "") },
+        replace: true,
+      });
+    }
+  },
   component: SplatRoute,
 });
 
@@ -123,14 +135,6 @@ function SplatRoute() {
   const params = Route.useParams() as { _splat?: string };
   const path = "/" + (params._splat ?? "");
   const resolution = resolveModulePath(path);
-  const directSpecialty = specialty[path];
-
-  // Known-but-non-canonical path (alias, casing, trailing slash, bare slug):
-  // send the user to the canonical module route so the workspace always opens.
-  if (resolution.status === "redirect" && !directSpecialty) {
-    return <Navigate to={resolution.target as never} replace />;
-  }
-
   const module = resolution.module;
   const canonical = module ? normalizeModulePath(module.url) : normalizeModulePath(path);
   const Specialty = specialty[canonical] ?? specialty[path];
