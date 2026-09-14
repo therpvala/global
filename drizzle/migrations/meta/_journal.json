@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1789355133424,
+      "tag": "0000_ams_manager_core_schema",
+      "breakpoints": true
+    }
+  ]
+}
