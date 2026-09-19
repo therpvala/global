@@ -49,6 +49,7 @@ import {
 import { RoleSimulatorConsole, PermissionAuditConsole } from "@/components/specialty/access-lab";
 import { RoleComparisonConsole } from "@/components/specialty/role-compare";
 import { AchievementsConsole } from "@/components/specialty/AchievementsConsole";
+import { AmsManager } from "@/components/specialty/AmsManager";
 import { RequirePermission } from "@/components/permissions";
 import { moduleKeyFromUrl } from "@/lib/permissions";
 
@@ -110,6 +111,7 @@ const specialty: Record<string, ComponentType> = {
   "/inventory": InventoryConsole,
   "/manufacturing": ManufacturingConsole,
   "/achievements": AchievementsConsole,
+  "/cp/ams-manager": AmsManager,
   "/role-simulator": RoleSimulatorConsole,
   "/permission-audit": PermissionAuditConsole,
   "/role-compare": RoleComparisonConsole,

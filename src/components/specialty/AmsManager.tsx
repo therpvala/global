@@ -159,7 +159,7 @@ export function AmsManager() {
   };
 
   const mCreate = useMutation({
-    mutationFn: (input: Parameters<typeof createTicket>[0] extends never ? never : {
+    mutationFn: (input: {
       subject: string;
       description?: string;
       product?: string;

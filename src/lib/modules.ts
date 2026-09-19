@@ -11,7 +11,7 @@ import {
   Code2 as Code2Icon,
   Megaphone, HeartHandshake, UserCircle, Timer, MonitorPlay, Lightbulb,
   Radar, Rocket, Beaker, Gauge, Boxes as BoxesIcon, MessageCircle, ClipboardList,
-  Shield, PlayCircle, LineChart, Layers, GraduationCap, Landmark, Truck,
+  Shield, PlayCircle, LineChart, Layers, GraduationCap, Landmark, Truck, LifeBuoy,
 } from "lucide-react";
 
 export type ModuleItem = {
@@ -110,6 +110,7 @@ export const modules: ModuleItem[] = [
   { title: "CEO Dashboard", url: "/cp/ceo", icon: Eye, group: "Control Panel · Command", desc: "Executive read-only cockpit" },
   { title: "Vala AI", url: "/cp/vala-ai", icon: Brain, group: "Control Panel · Command", desc: "AI management core" },
   { title: "Server Manager", url: "/cp/server-manager", icon: Server, group: "Control Panel · Command", desc: "Infra & uptime control" },
+  { title: "AMS Manager", url: "/cp/ams-manager", icon: LifeBuoy, group: "Control Panel · Command", desc: "Achievement & ticket management system" },
   { title: "AI API Manager", url: "/cp/api-ai-manager", icon: Zap, group: "Control Panel · Command", desc: "AI keys, quotas, routing" },
 
   // ===== Control Panel · Grade 2 (Delivery) =====
