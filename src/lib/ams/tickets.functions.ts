@@ -225,3 +225,36 @@ export const toggleChatPin = createServerFn({ method: "POST" })
 // Re-export constants so the client can import everything from one path.
 export { AMS_STATUSES, AMS_PRIORITIES, AMS_CHAT_CHANNELS };
 export type { AmsStatus, AmsPriority, AmsChatChannel };
+
+// ---------- directory (assignable members) ----------
+export const listAgents = createServerFn({ method: "GET" }).handler(async () => {
+  const tok = token();
+  if (!tok) return [] as { id: string; display_name: string | null; email: string | null }[];
+  const sb = clientFor(tok);
+  const { data } = await sb
+    .from("profiles")
+    .select("id, display_name, email")
+    .order("display_name")
+    .limit(200);
+  return data ?? [];
+});
+
+// ---------- current session identity ----------
+export const whoAmI = createServerFn({ method: "GET" }).handler(async () => {
+  const tok = token();
+  if (!tok) return null;
+  const sb = clientFor(tok);
+  const { data } = await sb.auth.getUser();
+  const uid = data.user?.id;
+  if (!uid) return null;
+  const [{ data: profile }, { data: roles }] = await Promise.all([
+    sb.from("profiles").select("id, display_name, email").eq("id", uid).maybeSingle(),
+    sb.from("user_roles").select("role").eq("user_id", uid),
+  ]);
+  return {
+    id: uid,
+    email: data.user?.email ?? profile?.email ?? null,
+    display_name: profile?.display_name ?? null,
+    roles: (roles ?? []).map((r) => r.role as string),
+  };
+});
