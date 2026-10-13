@@ -201,7 +201,7 @@ export function AnalyticsConsole() {
         <SectionHeader title="Trending dashboards" right={<Button variant="outline" size="sm">Open library</Button>} />
         <div className="grid md:grid-cols-2 gap-2">
           {["Revenue ops", "Product engagement", "Support SLA", "Marketing attribution", "Finance close", "Headcount"].map((d) => (
-            <Link key={d} to="/analytics" className="group flex items-center justify-between rounded-lg border border-border/60 p-3 hover:border-primary/40 hover:shadow-[var(--shadow-elegant)]">
+            <Link key={d} to="/$" params={{ _splat: "analytics" }} className="group flex items-center justify-between rounded-lg border border-border/60 p-3 hover:border-primary/40 hover:shadow-[var(--shadow-elegant)]">
               <div className="flex items-center gap-3">
                 <div className="grid h-9 w-9 place-items-center rounded-md bg-primary/10 text-primary"><LineChart className="h-4 w-4" /></div>
                 <div>
