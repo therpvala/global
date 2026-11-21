@@ -50,6 +50,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { KpiStrip, type Kpi } from "@/components/enterprise";
 import { useAuth } from "@/lib/auth";
+import { AmsGamification } from "@/components/specialty/AmsGamification";
+import { suggestTicketTriage, type TriageSuggestion } from "@/lib/ams/ai-triage.functions";
+import { Sparkles, Check, X } from "lucide-react";
 import {
   addComment,
   archiveTicket,
@@ -291,6 +294,20 @@ export function AmsManager() {
         </Card>
       )}
 
+      <Tabs defaultValue="tickets">
+        <TabsList className="flex-wrap">
+          <TabsTrigger value="tickets">Tickets</TabsTrigger>
+          <TabsTrigger value="missions">Missions</TabsTrigger>
+          <TabsTrigger value="trophies">Trophies</TabsTrigger>
+          <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
+          <TabsTrigger value="rewards">Rewards</TabsTrigger>
+        </TabsList>
+        {(["missions", "trophies", "leaderboard", "rewards"] as const).map((k) => (
+          <TabsContent key={k} value={k} className="pt-3">
+            <AmsGamification kind={k} />
+          </TabsContent>
+        ))}
+        <TabsContent value="tickets" className="space-y-5 pt-3">
       <KpiStrip kpis={kpis} />
 
       <Card>
@@ -422,6 +439,9 @@ export function AmsManager() {
         </CardContent>
       </Card>
 
+        </TabsContent>
+      </Tabs>
+
       <CreateTicketDialog
         open={createOpen}
         onOpenChange={setCreateOpen}
@@ -470,6 +490,22 @@ function CreateTicketDialog({
   const [category, setCategory] = useState("");
   const [department, setDepartment] = useState("");
   const [priority, setPriority] = useState<AmsPriority>("medium");
+  const fnTriage = useServerFn(suggestTicketTriage);
+  const [suggestion, setSuggestion] = useState<TriageSuggestion | null>(null);
+  const [triageError, setTriageError] = useState<string | null>(null);
+  const mTriage = useMutation({
+    mutationFn: () => fnTriage({ data: { subject, description, product } }),
+    onSuccess: (s) => { setSuggestion(s as TriageSuggestion); setTriageError(null); },
+    onError: (e: Error) => { setSuggestion(null); setTriageError(e.message); },
+  });
+  const applySuggestion = () => {
+    if (!suggestion) return;
+    if (suggestion.category) setCategory(suggestion.category);
+    setPriority(suggestion.priority);
+    if (!description.trim()) setDescription(suggestion.summary);
+    setSuggestion(null);
+    toast.success("AI suggestion applied — review before saving");
+  };
 
   const submit = (asDraft: boolean) => {
     if (!subject.trim()) {
@@ -491,6 +527,8 @@ function CreateTicketDialog({
     setCategory("");
     setDepartment("");
     setPriority("medium");
+    setSuggestion(null);
+    setTriageError(null);
   };
 
   return (
@@ -521,6 +559,50 @@ function CreateTicketDialog({
               rows={4}
               placeholder="Steps, impact, expected behaviour…"
             />
+          </div>
+          <div className="space-y-2 rounded-md border border-dashed p-3">
+            <div className="flex items-center justify-between gap-2">
+              <span className="flex items-center gap-1.5 text-sm font-medium">
+                <Sparkles className="h-4 w-4 text-primary" /> AI triage assistant
+              </span>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled={!subject.trim() || mTriage.isPending}
+                onClick={() => mTriage.mutate()}
+              >
+                {mTriage.isPending && <Loader2 className="mr-1.5 h-4 w-4 animate-spin" />}
+                Suggest
+              </Button>
+            </div>
+            {triageError && <p className="text-xs text-destructive">{triageError}</p>}
+            {suggestion && (
+              <div className="space-y-2 text-sm">
+                <p>{suggestion.summary}</p>
+                <div className="flex flex-wrap items-center gap-2 text-xs">
+                  <Badge variant="secondary">Category: {suggestion.category ?? "—"}</Badge>
+                  <PriorityPill priority={suggestion.priority} />
+                  <span className="text-muted-foreground">
+                    {Math.round(suggestion.confidence * 100)}% confident
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">{suggestion.rationale}</p>
+                <div className="flex gap-2">
+                  <Button type="button" size="sm" onClick={applySuggestion}>
+                    <Check className="mr-1 h-4 w-4" /> Apply
+                  </Button>
+                  <Button type="button" size="sm" variant="ghost" onClick={() => setSuggestion(null)}>
+                    <X className="mr-1 h-4 w-4" /> Dismiss
+                  </Button>
+                </div>
+              </div>
+            )}
+            {!suggestion && !triageError && (
+              <p className="text-xs text-muted-foreground">
+                Fill in the subject, then get a suggested summary, category and priority. Nothing is saved until you submit.
+              </p>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
