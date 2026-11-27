@@ -7,6 +7,10 @@ export const Route = createFileRoute("/accountant")({
     meta: [
       { title: "Accountant — SaaS Vala" },
       { name: "description", content: "Ledger, invoicing, payables, and reporting." },
+      { property: "og:title", content: "Accountant — SaaS Vala" },
+      { property: "og:description", content: "Ledger, invoicing, payables, and reporting." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: () => (

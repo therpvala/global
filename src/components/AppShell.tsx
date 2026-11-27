@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useState } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Search, Command, LogOut, Bell } from "lucide-react";
+import { Search, Command, LogOut, Bell, Check } from "lucide-react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { Input } from "@/components/ui/input";
@@ -17,20 +17,23 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { modules } from "@/lib/modules";
 import { useAuth, type AppRole } from "@/lib/auth";
+import { roleConfigs } from "@/lib/role-config";
 
-const roleOptions: { label: string; roles: AppRole[] }[] = [
-  { label: "Super Admin", roles: ["super_admin"] },
-  { label: "Admin", roles: ["admin"] },
-  { label: "Manager", roles: ["manager"] },
-  { label: "Accountant", roles: ["accountant"] },
-  { label: "Account Manager", roles: ["account_manager"] },
-  { label: "User", roles: ["user"] },
+const roleOptions: { label: string; role: AppRole }[] = [
+  { label: "Super Admin", role: "super_admin" },
+  { label: "Admin", role: "admin" },
+  { label: "Manager", role: "manager" },
+  { label: "Accountant", role: "accountant" },
+  { label: "Account Manager", role: "account_manager" },
+  { label: "User", role: "user" },
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { user, roles, logout, setRoles, primaryRole } = useAuth();
   const navigate = useNavigate();
+  const roleConfig = roleConfigs[primaryRole];
+  const RoleIcon = roleConfig.icon;
   const current = modules.find(
     (m) => pathname === m.url || pathname.startsWith(m.url + "/"),
   );
@@ -47,7 +50,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="flex min-h-screen w-full bg-background">
         <AppSidebar />
         <div className="flex flex-1 flex-col min-w-0">
-          <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border/70 bg-background/80 backdrop-blur px-4">
+          <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-border/70 bg-background px-4">
             <SidebarTrigger />
             {current ? (
               <nav className="hidden md:flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -76,7 +79,8 @@ export function AppShell({ children }: { children: ReactNode }) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="gap-2 capitalize">
-                  <Badge variant="secondary" className="px-1.5 py-0">
+                  <Badge variant="secondary" className="gap-1 px-1.5 py-0">
+                    <RoleIcon className={`h-3 w-3 ${roleConfig.iconTone}`} />
                     role
                   </Badge>
                   <span className="hidden sm:inline">{primaryRole.replace("_", " ")}</span>
@@ -87,11 +91,16 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <DropdownMenuSeparator />
                 {roleOptions.map((r) => (
                   <DropdownMenuItem
-                    key={r.label}
-                    onClick={() => setRoles(r.roles)}
-                    className={roles[0] === r.roles[0] ? "bg-accent" : ""}
+                    key={r.role}
+                    onClick={() => setRoles([r.role])}
+                    className={roles.includes(r.role) ? "bg-accent" : ""}
                   >
+                    {(() => {
+                      const OptionIcon = roleConfigs[r.role].icon;
+                      return <OptionIcon className={`mr-2 h-4 w-4 ${roleConfigs[r.role].iconTone}`} />;
+                    })()}
                     {r.label}
+                    {roles.includes(r.role) && <Check className="ml-auto h-3.5 w-3.5 text-primary" />}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
@@ -103,10 +112,10 @@ export function AppShell({ children }: { children: ReactNode }) {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="relative" aria-label="Account menu">
+                <button className="relative transition-transform hover:scale-[1.03]" aria-label={`${roleConfig.title} account menu`}>
                   <Avatar className="h-8 w-8 ring-2 ring-border hover:ring-primary transition">
-                    <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">
-                      {user?.email?.charAt(0).toUpperCase() ?? "U"}
+                    <AvatarFallback className="bg-primary/10 text-primary">
+                      <RoleIcon className={`h-4 w-4 ${roleConfig.iconTone}`} />
                     </AvatarFallback>
                   </Avatar>
                   <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-success ring-2 ring-background" />

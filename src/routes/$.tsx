@@ -118,6 +118,16 @@ const specialty: Record<string, ComponentType> = {
 };
 
 export const Route = createFileRoute("/$")({
+  head: () => ({
+    meta: [
+      { title: "Enterprise Module Workspace — SaaS Vala" },
+      { name: "description", content: "A focused enterprise workspace for Vala teams and business operations." },
+      { property: "og:title", content: "Enterprise Module Workspace — SaaS Vala" },
+      { property: "og:description", content: "A focused enterprise workspace for Vala teams and business operations." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   beforeLoad: ({ params }) => {
     const path = "/" + ((params as { _splat?: string })._splat ?? "");
     if (specialty[path]) return;

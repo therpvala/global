@@ -7,6 +7,10 @@ export const Route = createFileRoute("/super-admin")({
     meta: [
       { title: "Super Admin — SaaS Vala" },
       { name: "description", content: "Master operating control across the platform." },
+      { property: "og:title", content: "Super Admin — SaaS Vala" },
+      { property: "og:description", content: "Master operating control across the platform." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: () => (

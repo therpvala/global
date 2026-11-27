@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Sparkles, Home, Activity, Search, ChevronRight, Crown, Bug, CheckCircle2, XCircle, EyeOff } from "lucide-react";
+import { Home, Activity, Search, ChevronRight, Crown, Bug, CheckCircle2, XCircle, EyeOff } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -108,9 +108,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border">
         <Link to="/" className="flex items-center gap-2 px-2 py-3">
-          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary">
-            <Sparkles className="h-5 w-5 text-primary-foreground" />
-          </div>
+          <img className="vala-brand-motion h-9 w-9 shrink-0" src="/favicon.svg" alt="" aria-hidden="true" />
           <div className="flex flex-col leading-tight group-data-[collapsible=icon]:hidden">
             <span className="text-sm font-bold">SaaS Vala</span>
             <span className="truncate text-[10px] uppercase tracking-wider text-muted-foreground">

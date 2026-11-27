@@ -1,5 +1,6 @@
 # Roadmap
 
+- [ ] Global Vala visual polish: enterprise color system, role-based identity icons, animated branded favicon and subtle motion (in progress)
 - [x] AMS Manager: ticket core (list/create/triage detail/comments/chat/timeline)
 - [x] Real sign-in form on the login screen
 - [ ] AMS Manager: missions, trophies, leaderboards, rewards (in progress)

@@ -8,7 +8,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth, type AppRole } from "@/lib/auth";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({ meta: [{ title: "Sign in — SaaS Vala" }] }),
+  head: () => ({
+    meta: [
+      { title: "Sign in — SaaS Vala" },
+      { name: "description", content: "Sign in to your SaaS Vala enterprise workspace." },
+      { property: "og:title", content: "Sign in — SaaS Vala" },
+      { property: "og:description", content: "Sign in to your SaaS Vala enterprise workspace." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: LoginPage,
 });
 

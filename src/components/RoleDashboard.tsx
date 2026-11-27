@@ -76,21 +76,18 @@ export function RoleDashboard({ role: forcedRole }: { role?: AppRole }) {
         className="relative overflow-hidden rounded-2xl border border-border/60 p-6 md:p-8"
         style={{ backgroundImage: "var(--gradient-primary)" }}
       >
-        <div className="absolute -right-16 -top-16 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
-        <div className="absolute -left-10 bottom-0 h-48 w-48 rounded-full bg-black/10 blur-3xl" />
-
         <div className="relative z-10 text-primary-foreground">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="max-w-2xl">
-              <Badge variant="secondary" className="mb-3 capitalize">
-                <Sparkles className="mr-1 h-3 w-3" />
+              <Badge variant="secondary" className="mb-3 gap-1.5 capitalize">
+                <cfg.icon className={`h-3.5 w-3.5 ${cfg.iconTone}`} />
                 {role.replace("_", " ")} workspace
               </Badge>
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">{cfg.title}</h1>
+              <h1 className="text-2xl md:text-3xl font-bold">{cfg.title}</h1>
               <p className="mt-2 text-sm md:text-base opacity-90">{cfg.subtitle}</p>
               <div className="mt-4 flex flex-wrap items-center gap-2 text-xs opacity-90">
                 <span className="inline-flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-success" /> All systems normal
+                <span className="h-1.5 w-1.5 rounded-full bg-success" /> All systems normal
                 </span>
                 <span className="opacity-50">·</span>
                 <span>Welcome, {user?.name ?? "Operator"}</span>
@@ -101,10 +98,10 @@ export function RoleDashboard({ role: forcedRole }: { role?: AppRole }) {
 
             <div className="flex flex-col items-stretch gap-2 w-full sm:w-80">
               <div className="relative">
-                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/70" />
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-primary-foreground/75" />
                 <Input
                   placeholder="Jump to anything…  (⌘K)"
-                  className="h-10 pl-9 bg-white/15 border-white/20 placeholder:text-white/70 text-white"
+                  className="h-10 border-primary-foreground/20 bg-primary-foreground/15 pl-9 text-primary-foreground placeholder:text-primary-foreground/75"
                 />
               </div>
               <div className="flex gap-2">

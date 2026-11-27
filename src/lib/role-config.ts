@@ -1,10 +1,21 @@
 import type { AppRole } from "./auth";
 import { modules, type ModuleItem } from "./modules";
+import {
+  BriefcaseBusiness,
+  Calculator,
+  Crown,
+  Handshake,
+  ShieldCheck,
+  UserRound,
+  type LucideIcon,
+} from "lucide-react";
 
 export interface RoleConfig {
   role: AppRole;
   title: string;
   subtitle: string;
+  icon: LucideIcon;
+  iconTone: string;
   kpis: { label: string; value: string; delta?: string; tone?: "up" | "down" | "neutral" }[];
   /** Module groups (from modules.ts) to show on this dashboard, in order */
   groups: string[];
@@ -15,6 +26,8 @@ export const roleConfigs: Record<AppRole, RoleConfig> = {
     role: "super_admin",
     title: "Super Admin Command Center",
     subtitle: "Master operating control across every tenant, branch, and module",
+    icon: Crown,
+    iconTone: "text-chart-4",
     kpis: [
       { label: "Tenants", value: "248", delta: "+12 this month", tone: "up" },
       { label: "Active users", value: "8,412", delta: "+4.2%", tone: "up" },
@@ -27,6 +40,8 @@ export const roleConfigs: Record<AppRole, RoleConfig> = {
     role: "admin",
     title: "Admin Dashboard",
     subtitle: "Run the business: people, partners, organization, automation",
+    icon: ShieldCheck,
+    iconTone: "text-destructive",
     kpis: [
       { label: "Employees", value: "312", delta: "+6", tone: "up" },
       { label: "Open approvals", value: "14", tone: "neutral" },
@@ -39,6 +54,8 @@ export const roleConfigs: Record<AppRole, RoleConfig> = {
     role: "manager",
     title: "Manager Workspace",
     subtitle: "Operational execution across sales, projects, and people",
+    icon: BriefcaseBusiness,
+    iconTone: "text-chart-1",
     kpis: [
       { label: "Pipeline", value: "$1.2M", delta: "+8%", tone: "up" },
       { label: "Open tasks", value: "47", tone: "neutral" },
@@ -51,6 +68,8 @@ export const roleConfigs: Record<AppRole, RoleConfig> = {
     role: "accountant",
     title: "Accountant Desk",
     subtitle: "Ledger, invoicing, payables, and financial reporting",
+    icon: Calculator,
+    iconTone: "text-chart-5",
     kpis: [
       { label: "Revenue MTD", value: "$94K", delta: "+11%", tone: "up" },
       { label: "Outstanding AR", value: "$28K", tone: "neutral" },
@@ -63,6 +82,8 @@ export const roleConfigs: Record<AppRole, RoleConfig> = {
     role: "account_manager",
     title: "Account Manager Hub",
     subtitle: "Customers, contracts, renewals, and channel partners",
+    icon: Handshake,
+    iconTone: "text-chart-2",
     kpis: [
       { label: "Accounts", value: "142", delta: "+5", tone: "up" },
       { label: "Renewals (30d)", value: "18", tone: "neutral" },
@@ -75,6 +96,8 @@ export const roleConfigs: Record<AppRole, RoleConfig> = {
     role: "user",
     title: "Welcome",
     subtitle: "Your personal workspace",
+    icon: UserRound,
+    iconTone: "text-muted-foreground",
     kpis: [
       { label: "Tasks", value: "6", tone: "neutral" },
       { label: "Messages", value: "3", tone: "neutral" },

@@ -7,6 +7,10 @@ export const Route = createFileRoute("/manager")({
     meta: [
       { title: "Manager — SaaS Vala" },
       { name: "description", content: "Operational execution across sales, projects, and people." },
+      { property: "og:title", content: "Manager — SaaS Vala" },
+      { property: "og:description", content: "Operational execution across sales, projects, and people." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: () => (
